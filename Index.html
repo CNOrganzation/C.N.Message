@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C.N. Message - Édition Cyber</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #05050a; color: #ffffff; display: flex; flex-direction: column; align-items: center; }
+        .box { width: 100%; max-width: 500px; background: #0d0d1a; padding: 20px; border-radius: 12px; border: 2px solid #361FDB; box-shadow: 0 0 15px rgba(0, 240, 255, 0.2); position: relative; }
+        
+        #ecran-connexion { display: block; }
+        #ecran-chat { display: none; }
+
+        #chat-box { height: 350px; border: 1px solid #361FDB; background: #020205; overflow-y: scroll; padding: 10px; margin-bottom: 15px; border-radius: 6px; }
+        .message { display: flex; align-items: center; margin-bottom: 12px; padding: 8px; border-radius: 6px; background: #0b0b1e; border-left: 3px solid #00f0ff; line-height: 1.4; }
+        
+        .avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; margin-right: 10px; border: 1.5px solid #00f0ff; background: #361FDB; }
+        
+        .pseudo-tag { font-weight: bold; color: #00f0ff; }
+        .id-tag { font-size: 11px; color: #361FDB; font-style: italic; }
+        .texte-tag { color: #e0e0ff; margin-left: 5px; }
+        
+        label { display: block; margin-top: 10px; color: #00f0ff; font-size: 14px; }
+        input, button { padding: 12px; font-size: 16px; border-radius: 6px; border: 1px solid #361FDB; margin-top: 5px; box-sizing: border-box; background: #05050a; color: white; }
+        input:focus { border-color: #00f0ff; outline: none; box-shadow: 0 0 5px #00f0ff; }
+        .full-width { width: 100%; }
+        
+        #msg-input { width: 72%; border-color: #361FDB; }
+        #btn-envoi { width: 25%; background: #361FDB; color: white; border: none; cursor: pointer; float: right; font-weight: bold; }
+        #btn-envoi:hover { background: #002FA7; box-shadow: 0 0 8px #00f0ff; }
+        
+        #btn-connexion { background: #002FA7; color: white; border: 1px solid #00f0ff; cursor: pointer; margin-top: 20px; font-weight: bold; }
+        #btn-connexion:hover { background: #361FDB; box-shadow: 0 0 10px #00f0ff; }
+
+        .btn-reglages { position: absolute; top: 20px; right: 20px; background: none; border: none; color: #00f0ff; font-size: 22px; cursor: pointer; padding: 0; margin: 0; }
+        .btn-reglages:hover { color: #ffffff; text-shadow: 0 0 8px #00f0ff; }
+
+        #modal-parametres { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); align-items: center; justify-content: center; z-index: 10; }
+        .modal-content { background: #0d0d1a; padding: 20px; border-radius: 12px; border: 2px solid #00f0ff; width: 90%; max-width: 400px; box-shadow: 0 0 20px #361FDB; }
+    </style>
+</head>
+<body>
+
+    <h2 style="color: #00f0ff; text-shadow: 0 0 8px #361FDB;">💬 C.N. Message</h2>
+
+    <!-- ÉCRAN 1 : CONNEXION -->
+    <div id="ecran-connexion" class="box">
+        <h3 style="color: #ffffff; margin-top: 0;">Créer ton Profil Cyber</h3>
+        
+        <label for="pseudo-input">Ton Pseudo :</label>
+        <input type="text" id="pseudo-input" class="full-width" placeholder="Ex: Alexis, Alpha...">
+        
+        <label for="avatar-input">Lien URL de ta photo de profil (Optionnel) :</label>
+        <input type="text" id="avatar-input" class="full-width" placeholder="Colle le lien d'une image ici...">
+        
+        <button id="btn-connexion" class="full-width" onclick="creerCompte()">Initialiser la connexion</button>
+    </div>
+
+    <!-- ÉCRAN 2 : MESSAGERIE -->
+    <div id="ecran-chat" class="box">
+        <button class="btn-reglages" onclick="ouvrirParamètres()">⚙️</button>
+
+        <div style="display: flex; align-items: center; margin-bottom: 10px; max-width: 85%;">
+            <img id="mon-avatar-header" class="avatar" src="" alt="">
+            <p style="margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">ID réseau : <span id="afficher-profil" style="font-weight: bold; color: #00f0ff;"></span></p>
+        </div>
+        <div id="chat-box"></div>
+        <input type="text" id="msg-input" placeholder="Écris ton message ici...">
+        <button id="btn-envoi" onclick="envoyerMessage()">Envoyer</button>
+    </div>
+
+    <!-- FENÊTRE PARAMÈTRES (POP-UP) -->
+    <div id="modal-parametres">
+        <div class="modal-content">
+            <h3 style="color: #00f0ff; margin-top: 0;">⚙️ Paramètres du Profil</h3>
+            
+            <label for="pseudo-edit">Modifier le Pseudo :</label>
+            <input type="text" id="pseudo-edit" class="full-width">
+            
+            <label for="avatar-edit">Modifier le lien de la Photo :</label>
+            <input type="text" id="avatar-edit" class="full-width">
+            
+            <button id="btn-connexion" class="full-width" onclick="sauvegarderParamètres()">Enregistrer</button>
+            <button class="full-width" style="border-color: #757575; color: #757575; margin-top: 10px; cursor: pointer;" onclick="fermerParamètres()">Annuler</button>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://gstatic.com";
+        import { getDatabase, ref, push, onChildAdded } from "https://gstatic.com";
+
+        const firebaseConfig = {
+            databaseURL: "https://firebaseio.com"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const messagesRef = ref(db, "messages");
+
+        let monPseudo = "";
+        let monIdChiffres = "";
+        let monAvatar = "";
+        
+        const avatarParDefaut = "https://flaticon.com";
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const sauvegardePseudo = localStorage.getItem("cn_cyber_pseudo");
+            const sauvegardeId = localStorage.getItem("cn_cyber_id");
+            const sauvegardeAvatar = localStorage.getItem("cn_cyber_avatar");
+
+            if (sauvegardePseudo && sauvegardeId) {
+                monPseudo = sauvegardePseudo;
+                monIdChiffres = sauvegardeId;
+                monAvatar = sauvegardeAvatar || avatarParDefaut;
+                ouvrirChat();
+            }
+        });
+
+        window.creerCompte = function() {
+            const pseudoSaisi = document.getElementById("pseudo-input").value.trim();
+            let avatarSaisi = document.getElementById("avatar-input").value.trim();
+            
+            if (pseudoSaisi === "") {
+                alert("Système : Pseudo obligatoire pour la connexion.");
+                return;
+            }
+
+            if (avatarSaisi === "") {
+                avatarSaisi = avatarParDefaut;
+            }
+
+            const idHasard = Math.floor(100000 + Math.random() * 900000);
+
+            monPseudo = pseudoSaisi;
+            monIdChiffres = idHasard.toString();
+            monAvatar = avatarSaisi;
+
+            localStorage.setItem("cn_cyber_pseudo", monPseudo);
+            localStorage.setItem("cn_cyber_id", monIdChiffres);
+            localStorage.setItem("cn_cyber_avatar", monAvatar);
+
+            ouvrirChat();
+        };
+
+        window.ouvrirChat = function() {
+            document.getElementById("ecran-connexion").style.display = "none";
+            document.getElementById("ecran-chat").style.display = "block";
+            document.getElementById("afficher-profil").innerText = `${monPseudo} #${monIdChiffres}`;
+            document.getElementById("mon-avatar-header").src = monAvatar;
+        }
+
+        window.ouvrirParamètres = function() {
+            document.getElementById("pseudo-edit").value = monPseudo;
+            document.getElementById("avatar-edit").value = monAvatar === avatarParDefaut ? "" : monAvatar;
+            document.getElementById("modal-parametres").style.display = "flex";
+        };
+
+        window.fermerParamètres = function() {
+            document.getElementById("modal-parametres").style.display = "none";
+        };
+
+        window.sauvegarderParamètres = function() {
+            const nouveauPseudo = document.getElementById("pseudo-edit").value.trim();
+            let nouvelAvatar = document.getElementById("avatar-edit").value.trim();
+
+            if (nouveauPseudo === "") {
+                alert("Système : Le pseudo ne peut pas être vide.");
+                return;
+            }
+
+            if (nouvelAvatar === "") {
+                nouvelAvatar = avatarParDefaut;
+            }
+
+            monPseudo = nouveauPseudo;
+            monAvatar = nouvelAvatar;
+
+            localStorage.setItem("cn_cyber_pseudo", monPseudo);
+            localStorage.setItem("cn_cyber_avatar", monAvatar);
+
+            document.getElementById("afficher-profil").innerText = `${monPseudo} #${monIdChiffres}`;
+            document.getElementById("mon-avatar-header").src = monAvatar;
+
+            fermerParamètres();
+        };
+
+        window.envoyerMessage = function() {
+            const msgInput = document.getElementById("msg-input");
+            const texte = msgInput.value.trim();
+
+            if (texte !== "") {
+                push(messagesRef, {
+                    pseudo: monPseudo,
+                    idChiffres: monIdChiffres,
+                    avatar: monAvatar,
+                    texte: texte,
+                    timestamp: Date.now()
+                });
+                msgInput.value = "";
+            }
+        };
+
+        document.getElementById("msg-input").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") envoyerMessage();
+        });
+
+        const chatBox = document.getElementById("chat-box");
+        onChildAdded(messagesRef, (snapshot) => {
+            const donnees = snapshot.val();
+const divMessage = document.createElement("div");divMessage.classList.add("message");divMessage.innerHTML = <img class="avatar" src="${donnees.avatar}" onerror="this.src='${avatarParDefaut}'" alt="avatar"> <div> <span class="pseudo-tag">${donnees.pseudo}</span>  <span class="id-tag">#${donnees.idChiffres}</span> :  <span class="texte-tag">${donnees.texte}</span> </div>;chatBox.appendChild(divMessage);chatBox.scrollTop = chatBox.scrollHeight;});
