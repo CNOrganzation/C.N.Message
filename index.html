@@ -45,18 +45,18 @@
         <h3 style="color: #ffffff; margin-top: 0;">Créer ton Profil Cyber</h3>
         
         <label for="pseudo-input">Ton Pseudo :</label>
-        <!-- Désactivation des majuscules et corrections auto sur mobile pour éviter les bugs -->
         <input type="text" id="pseudo-input" class="full-width" placeholder="Ex: Alexis, Alpha..." autocapitalize="none" autocomplete="off" autocorrect="off">
         
         <label for="avatar-input">Lien URL de ta photo de profil (Optionnel) :</label>
         <input type="text" id="avatar-input" class="full-width" placeholder="Colle le lien d'une image ici..." autocapitalize="none" autocomplete="off" autocorrect="off">
         
-        <button id="btn-connexion" class="full-width" onclick="creerCompte()">Initialiser la connexion</button>
+        <!-- Le onclick mobile a été retiré d'ici pour éviter les bugs de zone de clic -->
+        <button id="btn-connexion" class="full-width">Initialiser la connexion</button>
     </div>
 
     <!-- ÉCRAN 2 : MESSAGERIE -->
     <div id="ecran-chat" class="box">
-        <button class="btn-reglages" onclick="ouvrirParamètres()">⚙️</button>
+        <button class="btn-reglages" id="btn-ouvrir-reglages">⚙️</button>
 
         <div style="display: flex; align-items: center; margin-bottom: 10px; max-width: 85%;">
             <img id="mon-avatar-header" class="avatar" src="" alt="">
@@ -65,7 +65,7 @@
         <div id="chat-box"></div>
         <div style="width: 100%; clear: both;">
             <input type="text" id="msg-input" placeholder="Écris ton message...">
-            <button id="btn-envoi" onclick="envoyerMessage()">Envoyer</button>
+            <button id="btn-envoi">Envoyer</button>
         </div>
     </div>
 
@@ -80,8 +80,8 @@
             <label for="avatar-edit">Modifier le lien de la Photo :</label>
             <input type="text" id="avatar-edit" class="full-width" autocapitalize="none">
             
-            <button class="full-width" style="background: #002FA7;" onclick="sauvegarderParamètres()">Enregistrer</button>
-            <button class="full-width" style="border-color: #757575; color: #757575; margin-top: 10px; cursor: pointer;" onclick="fermerParamètres()">Annuler</button>
+            <button class="full-width" style="background: #002FA7;" id="btn-sauvegarder-reglages">Enregistrer</button>
+            <button class="full-width" style="border-color: #757575; color: #757575; margin-top: 10px; cursor: pointer;" id="btn-annuler-reglages">Annuler</button>
         </div>
     </div>
 
@@ -94,17 +94,9 @@
             databaseURL: "https://firebasedatabase.app"
         };
 
-        let db = null;
-        let messagesRef = null;
-
-        // On essaie de charger Firebase en tâche de fond sans bloquer l'écran
-        try {
-            const app = initializeApp(firebaseConfig);
-            db = getDatabase(app);
-            messagesRef = ref(db, "messages");
-        } catch(e) {
-            console.log("Mode secours activé");
-        }
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const messagesRef = ref(db, "messages");
 
         let monPseudo = "";
         let monIdChiffres = "";
@@ -112,17 +104,15 @@
         
         const avatarParDefaut = "https://flaticon.com";
 
-        window.ouvrirChat = function() {
+        function ouvrirChat() {
             document.getElementById("ecran-connexion").style.display = "none";
             document.getElementById("ecran-chat").style.display = "block";
             document.getElementById("afficher-profil").innerText = monPseudo + " #" + monIdChiffres;
             document.getElementById("mon-avatar-header").src = monAvatar;
-            
-            // Écouter les messages une fois le chat ouvert
-            activerEcouteMessages();
-        };
+        }
 
-        window.creerCompte = function() {
+        // Écouteur d'événement moderne pour le bouton de connexion (Répare le bug mobile)
+        document.getElementById("btn-connexion").addEventListener("click", function() {
             const pseudoSaisi = document.getElementById("pseudo-input").value.trim();
             let avatarSaisi = document.getElementById("avatar-input").value.trim();
             
@@ -145,20 +135,21 @@
             localStorage.setItem("cn_cyber_id", monIdChiffres);
             localStorage.setItem("cn_cyber_avatar", monAvatar);
 
-            window.ouvrirChat();
-        };
+            ouvrirChat();
+        });
 
-        window.ouvrirParamètres = function() {
+        // Gestion des réglages
+        document.getElementById("btn-ouvrir-reglages").addEventListener("click", function() {
             document.getElementById("pseudo-edit").value = monPseudo;
             document.getElementById("avatar-edit").value = monAvatar === avatarParDefaut ? "" : monAvatar;
             document.getElementById("modal-parametres").style.display = "flex";
-        };
+        });
 
-        window.fermerParamètres = function() {
+        document.getElementById("btn-annuler-reglages").addEventListener("click", function() {
             document.getElementById("modal-parametres").style.display = "none";
-        };
+        });
 
-        window.sauvegarderParamètres = function() {
+        document.getElementById("btn-sauvegarder-reglages").addEventListener("click", function() {
             const nouveauPseudo = document.getElementById("pseudo-edit").value.trim();
             let nouvelAvatar = document.getElementById("avatar-edit").value.trim();
 
@@ -180,14 +171,15 @@
             document.getElementById("afficher-profil").innerText = monPseudo + " #" + monIdChiffres;
             document.getElementById("mon-avatar-header").src = monAvatar;
 
-            window.fermerParamètres();
-        };
+            document.getElementById("modal-parametres").style.display = "none";
+        });
 
-        window.envoyerMessage = function() {
+        // Envoi de messages
+        function envoyerMessage() {
             const msgInput = document.getElementById("msg-input");
             const texte = msgInput.value.trim();
 
-            if (texte !== "" && messagesRef) {
+            if (texte !== "") {
                 push(messagesRef, {
                     pseudo: monPseudo,
                     idChiffres: monIdChiffres,
@@ -197,11 +189,15 @@
                 });
                 msgInput.value = "";
             }
-        };
+        }
 
-        const sauvegardePseudo = localStorage.getItem("cn_cyber_pseudo");
-        const sauvegardeId = localStorage.getItem("cn_cyber_id");
-        const sauvegardeAvatar = localStorage.getItem("cn_cyber_avatar");
+        document.getElementById("btn-envoi").addEventListener("click", envoyerMessage);
 
-        if (sauvegardePseudo && sauvegardeId) {
-monPseudo = sauvegardePseudo;monIdChiffres = sauvegardeId;monAvatar = sauvegardeAvatar || avatarParDefaut;setTimeout(function() { window.ouvrirChat(); }, 500);}document.getElementById("msg-input").addEventListener("keypress", function(e) {if (e.key === "Enter") window.envoyerMessage();});const chatBox = document.getElementById("chat-box");let ecouteActive = false;function activerEcouteMessages() {if (ecouteActive || !messagesRef) return;ecouteActive = true;onChildAdded(messagesRef, (snapshot) => {const donnees = snapshot.val();const divMessage = document.createElement("div");divMessage.classList.add("message");divMessage.innerHTML = '' + donnees.pseudo + ' #' + donnees.idChiffres + ' : ' + donnees.texte + '';chatBox.appendChild(divMessage);chatBox.scrollTop = chatBox.scrollHeight;});}
+        document.getElementById("msg-input").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") envoyerMessage();
+        });
+
+        // Reconnexion automatique si déjà connecté
+const sauvegardePseudo = localStorage.getItem("cn_cyber_pseudo");const sauvegardeId = localStorage.getItem("cn_cyber_id");const sauvegardeAvatar = localStorage.getItem("cn_cyber_avatar");if (sauvegardePseudo && sauvegardeId) {monPseudo = sauvegardePseudo;monIdChiffres = sauvegardeId;monAvatar = sauvegardeAvatar || avatarParDefaut;ouvrirChat();}
+        // Affichage des messages en direct
+        const chatBox = document.getElementById("chat-box");onChildAdded(messagesRef, (snapshot) => {const donnees = snapshot.val();const divMessage = document.createElement("div");divMessage.classList.add("message");divMessage.innerHTML = '' + donnees.pseudo + ' #' + donnees.idChiffres + ' : ' + donnees.texte + '';chatBox.appendChild(divMessage);chatBox.scrollTop = chatBox.scrollHeight;});
