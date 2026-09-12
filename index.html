@@ -7,63 +7,38 @@
     <style>
         body { font-family: Arial, sans-serif; margin: 15px; background: #05050a; color: #ffffff; display: flex; flex-direction: column; align-items: center; }
         .box { width: 100%; max-width: 500px; background: #0d0d1a; padding: 20px; border-radius: 12px; border: 2px solid #361FDB; box-shadow: 0 0 15px rgba(0, 240, 255, 0.2); position: relative; box-sizing: border-box; }
-        
         #ecran-connexion { display: block; }
         #ecran-chat { display: none; }
-
         #chat-box { height: 350px; border: 1px solid #361FDB; background: #020205; overflow-y: scroll; padding: 10px; margin-bottom: 15px; border-radius: 6px; }
         .message { display: flex; align-items: center; margin-bottom: 12px; padding: 8px; border-radius: 6px; background: #0b0b1e; border-left: 3px solid #00f0ff; line-height: 1.4; }
-        
         .avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; margin-right: 10px; border: 1.5px solid #00f0ff; background: #361FDB; }
-        
         .pseudo-tag { font-weight: bold; color: #00f0ff; }
         .id-tag { font-size: 11px; color: #361FDB; font-style: italic; }
         .texte-tag { color: #e0e0ff; margin-left: 5px; }
-        
         label { display: block; margin-top: 10px; color: #00f0ff; font-size: 14px; }
         input, button { padding: 12px; font-size: 16px; border-radius: 6px; border: 1px solid #361FDB; margin-top: 5px; box-sizing: border-box; background: #05050a; color: white; -webkit-appearance: none; }
         input:focus { border-color: #00f0ff; outline: none; box-shadow: 0 0 5px #00f0ff; }
         .full-width { width: 100%; }
-        
         #msg-input { width: 70%; border-color: #361FDB; display: inline-block; }
         #btn-envoi { width: 27%; background: #361FDB; color: white; border: none; cursor: pointer; float: right; font-weight: bold; }
-        
         #btn-connexion { background: #002FA7; color: white; border: 1px solid #00f0ff; cursor: pointer; margin-top: 20px; font-weight: bold; }
-
-        .btn-reglages { position: absolute; top: 20px; right: 20px; background: none; border: none; color: #00f0ff; font-size: 22px; cursor: pointer; padding: 0; margin: 0; }
-
-        #modal-parametres { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); align-items: center; justify-content: center; z-index: 10; }
-        .modal-content { background: #0d0d1a; padding: 20px; border-radius: 12px; border: 2px solid #00f0ff; width: 90%; max-width: 400px; box-shadow: 0 0 20px #361FDB; }
     </style>
-
-    <!-- Chargement direct de Firebase (Version stable classique sans module) -->
-    <script src="https://gstatic.com"></script>
-    <script src="https://gstatic.com"></script>
 </head>
 <body>
 
     <h2 style="color: #00f0ff; text-shadow: 0 0 8px #361FDB; margin-bottom: 10px;">💬 C.N. Message</h2>
 
-    <!-- ÉCRAN 1 : CONNEXION -->
     <div id="ecran-connexion" class="box">
         <h3 style="color: #ffffff; margin-top: 0;">Créer ton Profil Cyber</h3>
-        
         <label for="pseudo-input">Ton Pseudo :</label>
         <input type="text" id="pseudo-input" class="full-width" placeholder="Ex: Alexis, Alpha..." autocapitalize="none" autocomplete="off" autocorrect="off">
-        
-        <label for="avatar-input">Lien URL de ta photo de profil (Optionnel) :</label>
-        <input type="text" id="avatar-input" class="full-width" placeholder="Colle le lien d'une image ici..." autocapitalize="none" autocomplete="off" autocorrect="off">
-        
         <button id="btn-connexion" class="full-width" onclick="creerCompte()">Initialiser la connexion</button>
     </div>
 
-    <!-- ÉCRAN 2 : MESSAGERIE -->
     <div id="ecran-chat" class="box">
-        <button class="btn-reglages" onclick="ouvrirParamètres()">⚙️</button>
-
-        <div style="display: flex; align-items: center; margin-bottom: 10px; max-width: 85%;">
-            <img id="mon-avatar-header" class="avatar" src="" alt="">
-            <p style="margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">ID réseau : <span id="afficher-profil" style="font-weight: bold; color: #00f0ff;"></span></p>
+        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+            <img id="mon-avatar-header" class="avatar" src="https://flaticon.com" alt="">
+            <p style="margin: 0;">ID réseau : <span id="afficher-profil" style="font-weight: bold; color: #00f0ff;"></span></p>
         </div>
         <div id="chat-box"></div>
         <div style="width: 100%; clear: both;">
@@ -72,137 +47,38 @@
         </div>
     </div>
 
-    <!-- FENÊTRE PARAMÈTRES -->
-    <div id="modal-parametres">
-        <div class="modal-content">
-            <h3 style="color: #00f0ff; margin-top: 0;">⚙️ Paramètres du Profil</h3>
-            
-            <label for="pseudo-edit">Modifier le Pseudo :</label>
-            <input type="text" id="pseudo-edit" class="full-width" autocapitalize="none">
-            
-            <label for="avatar-edit">Modifier le lien de la Photo :</label>
-            <input type="text" id="avatar-edit" class="full-width" autocapitalize="none">
-            
-            <button class="full-width" style="background: #002FA7;" onclick="sauvegarderParamètres()">Enregistrer</button>
-            <button class="full-width" style="border-color: #757575; color: #757575; margin-top: 10px; cursor: pointer;" onclick="fermerParamètres()">Annuler</button>
-        </div>
-    </div>
-
     <script>
-        // Configuration Firebase classique
-        var firebaseConfig = {
-            databaseURL: "https://firebasedatabase.app"
-        };
-        
-        // Initialisation immédiate globale
-        firebase.initializeApp(firebaseConfig);
-        var database = firebase.database();
-        var messagesRef = database.ref("messages");
-
         var monPseudo = "";
         var monIdChiffres = "";
-        var monAvatar = "";
-        var avatarParDefaut = "https://flaticon.com";
-
-        function ouvrirChat() {
-            document.getElementById("ecran-connexion").style.display = "none";
-            document.getElementById("ecran-chat").style.display = "block";
-            document.getElementById("afficher-profil").innerText = monPseudo + " #" + monIdChiffres;
-            document.getElementById("mon-avatar-header").src = monAvatar;
-        }
 
         function creerCompte() {
             var pseudoSaisi = document.getElementById("pseudo-input").value.trim();
-            var avatarSaisi = document.getElementById("avatar-input").value.trim();
-            
             if (pseudoSaisi === "") {
-                alert("Système : Pseudo obligatoire pour la connexion.");
+                alert("Pseudo obligatoire !");
                 return;
             }
-
-            if (avatarSaisi === "") {
-                avatarSaisi = avatarParDefaut;
-            }
-
-            var idHasard = Math.floor(100000 + Math.random() * 900000);
-
             monPseudo = pseudoSaisi;
-            monIdChiffres = idHasard.toString();
-            monAvatar = avatarSaisi;
+            monIdChiffres = Math.floor(100000 + Math.random() * 900000).toString();
 
-            localStorage.setItem("cn_cyber_pseudo", monPseudo);
-            localStorage.setItem("cn_cyber_id", monIdChiffres);
-            localStorage.setItem("cn_cyber_avatar", monAvatar);
-
-            ouvrirChat();
-        }
-
-        function ouvrirParamètres() {
-            document.getElementById("pseudo-edit").value = monPseudo;
-            document.getElementById("avatar-edit").value = (monAvatar === avatarParDefaut) ? "" : monAvatar;
-            document.getElementById("modal-parametres").style.display = "flex";
-        }
-
-        function fermerParamètres() {
-            document.getElementById("modal-parametres").style.display = "none";
-        }
-
-        function sauvegarderParamètres() {
-            var nouveauPseudo = document.getElementById("pseudo-edit").value.trim();
-            var nouvelAvatar = document.getElementById("avatar-edit").value.trim();
-
-            if (nouveauPseudo === "") {
-                alert("Système : Le pseudo ne peut pas être vide.");
-                return;
-            }
-
-            if (nouvelAvatar === "") {
-                nouvelAvatar = avatarParDefaut;
-            }
-
-            monPseudo = nouveauPseudo;
-            monAvatar = nouvelAvatar;
-
-            localStorage.setItem("cn_cyber_pseudo", monPseudo);
-            localStorage.setItem("cn_cyber_avatar", monAvatar);
-
+            document.getElementById("ecran-connexion").style.display = "none";
+            document.getElementById("ecran-chat").style.display = "block";
             document.getElementById("afficher-profil").innerText = monPseudo + " #" + monIdChiffres;
-            document.getElementById("mon-avatar-header").src = monAvatar;
-
-            fermerParamètres();
         }
 
         function envoyerMessage() {
             var msgInput = document.getElementById("msg-input");
             var texte = msgInput.value.trim();
-
             if (texte !== "") {
-                messagesRef.push({
-                    pseudo: monPseudo,
-                    idChiffres: monIdChiffres,
-                    avatar: monAvatar,
-                    texte: texte,
-                    timestamp: Date.now()
-                });
+                var divMessage = document.createElement("div");
+                divMessage.classList.add("message");
+                divMessage.innerHTML = '<div><span class="pseudo-tag">' + monPseudo + '</span> <span class="id-tag">#' + monIdChiffres + '</span> : <span class="texte-tag">' + texte + '</span></div>';
+                
+                var chatBox = document.getElementById("chat-box");
+                chatBox.appendChild(divMessage);
+                chatBox.scrollTop = chatBox.scrollHeight;
                 msgInput.value = "";
             }
         }
-
-        document.getElementById("msg-input").addEventListener("keypress", function(e) {
-            if (e.key === "Enter") envoyerMessage();
-        });
-
-        // Reconnexion automatique si existant
-        var sauvegardePseudo = localStorage.getItem("cn_cyber_pseudo");
-        var sauvegardeId = localStorage.getItem("cn_cyber_id");
-        var sauvegardeAvatar = localStorage.getItem("cn_cyber_avatar");
-
-        if (sauvegardePseudo && sauvegardeId) {
-            monPseudo = sauvegardePseudo;
-            monIdChiffres = sauvegardeId;
-            monAvatar = sauvegardeAvatar || avatarParDefaut;
-            ouvrirChat();
-        }
-
-        // Réception et affichage des messages
-var chatBox = document.getElementById("chat-box");messagesRef.on("child_added", function(snapshot) {var donnees = snapshot.val();var divMessage = document.createElement("div");divMessage.classList.add("message");divMessage.innerHTML = '' + donnees.pseudo + ' #' + donnees.idChiffres + ' : ' + donnees.texte + '';chatBox.appendChild(divMessage);chatBox.scrollTop = chatBox.scrollHeight;});
+    </script>
+</body>
+</html>
