@@ -80,7 +80,7 @@
             <label for="avatar-edit">Modifier le lien de la Photo :</label>
             <input type="text" id="avatar-edit" class="full-width">
             
-            <button id="btn-connexion" class="full-width" onclick="sauvegarderParamètres()">Enregistrer</button>
+            <button class="full-width" style="background: #002FA7;" onclick="sauvegarderParamètres()">Enregistrer</button>
             <button class="full-width" style="border-color: #757575; color: #757575; margin-top: 10px; cursor: pointer;" onclick="fermerParamètres()">Annuler</button>
         </div>
     </div>
@@ -91,8 +91,7 @@
         import { getDatabase, ref, push, onChildAdded } from "https://gstatic.com";
 
         const firebaseConfig = {
-            databaseURL: "
-https://cnmessage-default-rtdb.europe-west1.firebasedatabase.app/"
+            databaseURL: "https://firebasedatabase.app"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -105,18 +104,13 @@ https://cnmessage-default-rtdb.europe-west1.firebasedatabase.app/"
         
         const avatarParDefaut = "https://flaticon.com";
 
-        window.addEventListener("DOMContentLoaded", () => {
-            const sauvegardePseudo = localStorage.getItem("cn_cyber_pseudo");
-            const sauvegardeId = localStorage.getItem("cn_cyber_id");
-            const sauvegardeAvatar = localStorage.getItem("cn_cyber_avatar");
-
-            if (sauvegardePseudo && sauvegardeId) {
-                monPseudo = sauvegardePseudo;
-                monIdChiffres = sauvegardeId;
-                monAvatar = sauvegardeAvatar || avatarParDefaut;
-                ouvrirChat();
-            }
-        });
+        // Forcer l'assignation des fonctions globalement pour éviter les blocages de boutons
+        window.ouvrirChat = function() {
+            document.getElementById("ecran-connexion").style.display = "none";
+            document.getElementById("ecran-chat").style.display = "block";
+            document.getElementById("afficher-profil").innerText = monPseudo + " #" + monIdChiffres;
+            document.getElementById("mon-avatar-header").src = monAvatar;
+        };
 
         window.creerCompte = function() {
             const pseudoSaisi = document.getElementById("pseudo-input").value.trim();
@@ -141,15 +135,8 @@ https://cnmessage-default-rtdb.europe-west1.firebasedatabase.app/"
             localStorage.setItem("cn_cyber_id", monIdChiffres);
             localStorage.setItem("cn_cyber_avatar", monAvatar);
 
-            ouvrirChat();
+            window.ouvrirChat();
         };
-
-        window.ouvrirChat = function() {
-            document.getElementById("ecran-connexion").style.display = "none";
-            document.getElementById("ecran-chat").style.display = "block";
-            document.getElementById("afficher-profil").innerText = `${monPseudo} #${monIdChiffres}`;
-            document.getElementById("mon-avatar-header").src = monAvatar;
-        }
 
         window.ouvrirParamètres = function() {
             document.getElementById("pseudo-edit").value = monPseudo;
@@ -180,10 +167,10 @@ https://cnmessage-default-rtdb.europe-west1.firebasedatabase.app/"
             localStorage.setItem("cn_cyber_pseudo", monPseudo);
             localStorage.setItem("cn_cyber_avatar", monAvatar);
 
-            document.getElementById("afficher-profil").innerText = `${monPseudo} #${monIdChiffres}`;
+            document.getElementById("afficher-profil").innerText = monPseudo + " #" + monIdChiffres;
             document.getElementById("mon-avatar-header").src = monAvatar;
 
-            fermerParamètres();
+            window.fermerParamètres();
         };
 
         window.envoyerMessage = function() {
@@ -202,11 +189,21 @@ https://cnmessage-default-rtdb.europe-west1.firebasedatabase.app/"
             }
         };
 
+        // Démarrage automatique si le compte existe déjà
+        const sauvegardePseudo = localStorage.getItem("cn_cyber_pseudo");
+        const sauvegardeId = localStorage.getItem("cn_cyber_id");
+        const sauvegardeAvatar = localStorage.getItem("cn_cyber_avatar");
+
+        if (sauvegardePseudo && sauvegardeId) {
+            monPseudo = sauvegardePseudo;
+            monIdChiffres = sauvegardeId;
+            monAvatar = sauvegardeAvatar || avatarParDefaut;
+            window.ouvrirChat();
+        }
+
         document.getElementById("msg-input").addEventListener("keypress", function(e) {
-            if (e.key === "Enter") envoyerMessage();
+            if (e.key === "Enter") window.envoyerMessage();
         });
 
         const chatBox = document.getElementById("chat-box");
-        onChildAdded(messagesRef, (snapshot) => {
-            const donnees = snapshot.val();
-const divMessage = document.createElement("div");divMessage.classList.add("message");divMessage.innerHTML = <img class="avatar" src="${donnees.avatar}" onerror="this.src='${avatarParDefaut}'" alt="avatar"> <div> <span class="pseudo-tag">${donnees.pseudo}</span>  <span class="id-tag">#${donnees.idChiffres}</span> :  <span class="texte-tag">${donnees.texte}</span> </div>;chatBox.appendChild(divMessage);chatBox.scrollTop = chatBox.scrollHeight;});
+        onChildAdded(messagesRef, (snapshot) => {const donnees = snapshot.val();const divMessage = document.createElement("div");divMessage.classList.add("message");divMessage.innerHTML = '' + donnees.pseudo + ' #' + donnees.idChiffres + ' : ' + donnees.texte + '';chatBox.appendChild(divMessage);chatBox.scrollTop = chatBox.scrollHeight;});
