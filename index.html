@@ -524,12 +524,23 @@ button {
             💬 C.N. Message
         </div>
 
-        <div
-            id="status"
-            class="status"
-        >
-            Connexion…
-        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+    <div id="status" class="status">
+        Connexion…
+    </div>
+
+    <button
+        id="settingsBtn"
+        style="
+            background:#121226;
+            border:1px solid #361FDB;
+            color:white;
+            border-radius:8px;
+            padding:8px 10px;
+            font-size:18px;
+        "
+    >⚙️</button>
+</div>
 
     </header>
 
@@ -637,7 +648,202 @@ button {
 
 </div>
 
+<!-- =========================
+     PARAMÈTRES
+========================= -->
 
+<div
+    id="settingsPanel"
+    class="hidden"
+    style="
+        position:fixed;
+        inset:0;
+        z-index:100;
+        background:rgba(0,0,0,.75);
+        padding:20px;
+        overflow-y:auto;
+    "
+>
+
+    <div
+        style="
+            max-width:500px;
+            margin:40px auto;
+            background:#0d0d1a;
+            border:2px solid #361FDB;
+            border-radius:14px;
+            padding:20px;
+            box-shadow:0 0 25px rgba(54,31,219,.4);
+        "
+    >
+
+        <div
+            style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                margin-bottom:20px;
+            "
+        >
+
+            <h2 style="margin:0;color:#00f0ff;">
+                ⚙️ Paramètres
+            </h2>
+
+            <button
+                id="closeSettings"
+                style="
+                    background:#121226;
+                    border:1px solid #361FDB;
+                    color:white;
+                    border-radius:7px;
+                    padding:7px 10px;
+                "
+            >✕</button>
+
+        </div>
+
+
+        <!-- PROFIL -->
+
+        <h3 style="color:#00f0ff;">
+            👤 Profil
+        </h3>
+
+        <label>
+            Pseudo
+        </label>
+
+        <input
+            id="settingsPseudo"
+            type="text"
+            maxlength="24"
+            style="
+                width:100%;
+                padding:12px;
+                margin-top:6px;
+                background:#05050a;
+                color:white;
+                border:1px solid #30277d;
+                border-radius:7px;
+            "
+        >
+
+
+        <label style="display:block;margin-top:15px;">
+            Photo de profil — lien de l'image
+        </label>
+
+        <input
+            id="settingsAvatar"
+            type="url"
+            placeholder="https://..."
+            style="
+                width:100%;
+                padding:12px;
+                margin-top:6px;
+                background:#05050a;
+                color:white;
+                border:1px solid #30277d;
+                border-radius:7px;
+            "
+        >
+
+        <p
+            style="
+                color:#77779a;
+                font-size:12px;
+            "
+        >
+            Utilise un lien direct vers une image.
+        </p>
+
+
+        <img
+            id="avatarPreview"
+            src=""
+            alt="Aperçu"
+            style="
+                width:70px;
+                height:70px;
+                border-radius:50%;
+                object-fit:cover;
+                border:2px solid #00f0ff;
+                background:#361FDB;
+                display:none;
+                margin:10px 0;
+            "
+        >
+
+
+        <!-- APPARENCE -->
+
+        <h3 style="color:#00f0ff;margin-top:25px;">
+            🎨 Apparence
+        </h3>
+
+        <div style="display:flex;gap:8px;">
+
+            <button
+                id="darkModeBtn"
+                style="
+                    flex:1;
+                    padding:12px;
+                    background:#121226;
+                    color:white;
+                    border:1px solid #361FDB;
+                    border-radius:7px;
+                "
+            >
+                🌙 Sombre
+            </button>
+
+            <button
+                id="lightModeBtn"
+                style="
+                    flex:1;
+                    padding:12px;
+                    background:#121226;
+                    color:white;
+                    border:1px solid #361FDB;
+                    border-radius:7px;
+                "
+            >
+                ☀️ Clair
+            </button>
+
+        </div>
+
+
+        <button
+            id="saveSettings"
+            style="
+                width:100%;
+                margin-top:25px;
+                padding:13px;
+                background:#361FDB;
+                color:white;
+                border:0;
+                border-radius:8px;
+                font-weight:bold;
+            "
+        >
+            💾 Enregistrer
+        </button>
+
+        <div
+            id="settingsMessage"
+            style="
+                margin-top:10px;
+                text-align:center;
+                color:#00f0ff;
+                font-size:13px;
+            "
+        ></div>
+
+    </div>
+
+</div>
 <!-- =========================
      JAVASCRIPT
 ========================= -->
