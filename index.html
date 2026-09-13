@@ -75,6 +75,17 @@ button {
     color: #8d8da8;
 }
 
+.menuBtn {
+    display: none;
+
+    background: #121226;
+    border: 1px solid #361FDB;
+    color: white;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 18px;
+}
+
 /* =========================
    STRUCTURE
 ========================= */
@@ -83,7 +94,8 @@ button {
     display: grid;
     grid-template-columns: 290px 1fr;
 
-    min-height: calc(100vh - 64px);
+    height: calc(100vh - 64px);
+    min-height: 0;
 }
 
 /* =========================
@@ -96,6 +108,12 @@ button {
     background: #0b0b17;
 
     padding: 12px;
+
+    overflow-y: auto;
+}
+
+.sidebarClose {
+    display: none;
 }
 
 .tabs {
@@ -190,7 +208,8 @@ button {
     display: flex;
     flex-direction: column;
 
-    min-height: calc(100vh - 64px);
+    height: 100%;
+    min-height: 0;
 }
 
 .chat-head {
@@ -199,6 +218,31 @@ button {
     border-bottom: 1px solid #272052;
 
     background: #0d0d1a;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    flex-shrink: 0;
+}
+
+.chat-avatar {
+    width: 38px;
+    height: 38px;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+
+    border: 2px solid #361FDB;
+
+    background: #361FDB;
+
+    flex-shrink: 0;
+}
+
+.chat-head-info {
+    min-width: 0;
 }
 
 .chat-name {
@@ -215,6 +259,8 @@ button {
 
 .messages {
     flex: 1;
+
+    min-height: 0;
 
     overflow-y: auto;
 
@@ -288,6 +334,8 @@ button {
     display: flex;
 
     gap: 7px;
+
+    flex-shrink: 0;
 }
 
 .composer input {
@@ -440,22 +488,67 @@ button {
 
 @media(max-width:700px) {
 
+    .menuBtn {
+        display: block;
+    }
+
     .layout {
-        grid-template-columns: 1fr;
+        display: block;
+
+        height: calc(100vh - 64px);
+        min-height: 0;
     }
 
     .sidebar {
-        border-right: 0;
+        position: fixed;
 
-        border-bottom: 1px solid #272052;
+        top: 64px;
+        left: 0;
+        bottom: 0;
+
+        width: 290px;
+        max-width: 85vw;
+
+        z-index: 20;
+
+        border-right: 1px solid #272052;
+        border-bottom: 0;
+
+        transform: translateX(-100%);
+        transition: transform .2s ease;
+
+        box-shadow: 8px 0 25px rgba(0,0,0,.45);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .sidebarClose {
+        display: block;
+
+        width: 100%;
+
+        margin-bottom: 10px;
+
+        padding: 9px;
+
+        background: #121226;
+        border: 1px solid #361FDB;
+        color: white;
+
+        border-radius: 7px;
+
+        text-align: left;
     }
 
     .chat {
-        min-height: 65vh;
+        height: 100%;
+        min-height: 0;
     }
 
     .messages {
-        min-height: 300px;
+        min-height: 0;
     }
 
     .item {
@@ -525,22 +618,31 @@ button {
         </div>
 
         <div style="display:flex;align-items:center;gap:10px;">
-    <div id="status" class="status">
-        Connexion…
-    </div>
 
-    <button
-        id="settingsBtn"
-        style="
-            background:#121226;
-            border:1px solid #361FDB;
-            color:white;
-            border-radius:8px;
-            padding:8px 10px;
-            font-size:18px;
-        "
-    >⚙️</button>
-</div>
+            <button
+                id="menuBtn"
+                class="menuBtn"
+            >
+                ☰
+            </button>
+
+            <div id="status" class="status">
+                Connexion…
+            </div>
+
+            <button
+                id="settingsBtn"
+                style="
+                    background:#121226;
+                    border:1px solid #361FDB;
+                    color:white;
+                    border-radius:8px;
+                    padding:8px 10px;
+                    font-size:18px;
+                "
+            >⚙️</button>
+
+        </div>
 
     </header>
 
@@ -551,7 +653,14 @@ button {
              MENU
         ========================= -->
 
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
+
+            <button
+                id="sidebarClose"
+                class="sidebarClose"
+            >
+                ✕ Fermer
+            </button>
 
             <div
                 id="me"
@@ -601,18 +710,30 @@ button {
 
             <div class="chat-head">
 
-                <div
-                    id="chatName"
-                    class="chat-name"
+                <img
+                    id="chatAvatar"
+                    class="chat-avatar"
+                    src=""
+                    alt=""
+                    style="display:none;"
                 >
-                    🌍 Mondial
-                </div>
 
-                <div
-                    id="chatSub"
-                    class="chat-sub"
-                >
-                    Tout le réseau
+                <div class="chat-head-info">
+
+                    <div
+                        id="chatName"
+                        class="chat-name"
+                    >
+                        🌍 Mondial
+                    </div>
+
+                    <div
+                        id="chatSub"
+                        class="chat-sub"
+                    >
+                        Tout le réseau
+                    </div>
+
                 </div>
 
             </div>
@@ -844,6 +965,8 @@ button {
     </div>
 
 </div>
+
+
 <!-- =========================
      JAVASCRIPT
 ========================= -->
@@ -853,7 +976,6 @@ button {
 import {
     createClient
 } from "https://esm.sh/@supabase/supabase-js@2";
-
 
 
 /*
@@ -869,13 +991,11 @@ const SUPABASE_URL = "https://kmeuxlqtwsgauajmwsav.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_bUgTtZXn7zfY3_y8fdL5zg_u675RwY1";
 
 
-
 const supabase =
     createClient(
         SUPABASE_URL,
         SUPABASE_ANON_KEY
     );
-
 
 
 /* =========================
@@ -893,14 +1013,12 @@ let currentUser = null;
 let realtimeChannel = null;
 
 
-
 /* =========================
    RACCOURCI DOM
 ========================= */
 
 const $ = id =>
     document.getElementById(id);
-
 
 
 /* =========================
@@ -912,7 +1030,6 @@ function escapeText(value) {
     return String(value ?? "");
 
 }
-
 
 
 /* =========================
@@ -952,7 +1069,6 @@ async function ensureAuth() {
 }
 
 
-
 /* =========================
    CHARGER PROFIL
 ========================= */
@@ -985,7 +1101,6 @@ async function loadProfile() {
         </span>`;
 
 }
-
 
 
 /* =========================
@@ -1039,7 +1154,6 @@ async function init() {
     }
 
 }
-
 
 
 /* =========================
@@ -1179,6 +1293,36 @@ async function createProfile() {
 }
 
 
+/* =========================
+   AVATAR DISCUSSION
+========================= */
+
+function setChatAvatar(url) {
+
+    const avatar =
+        $("chatAvatar");
+
+
+    if (!url) {
+
+        avatar.style.display =
+            "none";
+
+        avatar.removeAttribute("src");
+
+        return;
+
+    }
+
+
+    avatar.src =
+        url;
+
+    avatar.style.display =
+        "block";
+
+}
+
 
 /* =========================
    AFFICHER LES MESSAGES
@@ -1210,7 +1354,6 @@ function setMessages(rows) {
         $("messages").scrollHeight;
 
 }
-
 
 
 /* =========================
@@ -1283,7 +1426,6 @@ function addMessage(row) {
 }
 
 
-
 /* =========================
    OUVRIR MONDIAL
 ========================= */
@@ -1315,6 +1457,12 @@ async function openWorld() {
         "Tout le réseau";
 
 
+    setChatAvatar(null);
+
+
+    closeSidebar();
+
+
     if (realtimeChannel) {
 
         await supabase
@@ -1332,7 +1480,7 @@ async function openWorld() {
         await supabase
             .from("world_messages")
             .select(
-                "*,sender:profiles!world_messages_sender_id_fkey(pseudo,network_id)"
+                "*,sender:profiles!world_messages_sender_id_fkey(pseudo,network_id,avatar_url)"
             )
             .order(
                 "created_at",
@@ -1382,7 +1530,7 @@ async function openWorld() {
                         await supabase
                             .from("world_messages")
                             .select(
-                                "*,sender:profiles!world_messages_sender_id_fkey(pseudo,network_id)"
+                                "*,sender:profiles!world_messages_sender_id_fkey(pseudo,network_id,avatar_url)"
                             )
                             .eq(
                                 "id",
@@ -1409,7 +1557,6 @@ async function openWorld() {
             .subscribe();
 
 }
-
 
 
 /* =========================
@@ -1454,7 +1601,7 @@ async function searchUsers() {
         await supabase
             .from("profiles")
             .select(
-                "id,pseudo,network_id"
+                "id,pseudo,network_id,avatar_url"
             )
             .neq(
                 "id",
@@ -1511,7 +1658,6 @@ async function searchUsers() {
 }
 
 
-
 /* =========================
    OUVRIR DISCUSSION PRIVÉE
 ========================= */
@@ -1541,6 +1687,14 @@ async function openDM(other) {
 
     $("chatSub").textContent =
         `${other.pseudo} #${other.network_id}`;
+
+
+    setChatAvatar(
+        other.avatar_url
+    );
+
+
+    closeSidebar();
 
 
     if (realtimeChannel) {
@@ -1616,7 +1770,10 @@ async function openDM(other) {
                     row.pseudo,
 
                 network_id:
-                    row.network_id
+                    row.network_id,
+
+                avatar_url:
+                    row.avatar_url
 
             }
 
@@ -1624,7 +1781,6 @@ async function openDM(other) {
 
 
     setMessages(formatted);
-
 
 
     /*
@@ -1684,7 +1840,7 @@ async function openDM(other) {
                             await supabase
                                 .from("private_messages")
                                 .select(
-                                    "*,sender:profiles!private_messages_sender_id_fkey(pseudo,network_id)"
+                                    "*,sender:profiles!private_messages_sender_id_fkey(pseudo,network_id,avatar_url)"
                                 )
                                 .eq(
                                     "id",
@@ -1713,7 +1869,6 @@ async function openDM(other) {
             .subscribe();
 
 }
-
 
 
 /* =========================
@@ -1818,7 +1973,6 @@ async function sendMessage() {
 }
 
 
-
 /* =========================
    AFFICHER ERREUR
 ========================= */
@@ -1836,6 +1990,37 @@ function showError(e) {
 
 }
 
+
+/* =========================
+   SIDEBAR MOBILE
+========================= */
+
+function openSidebar() {
+
+    $("sidebar")
+        .classList
+        .add("open");
+
+}
+
+
+function closeSidebar() {
+
+    $("sidebar")
+        .classList
+        .remove("open");
+
+}
+
+
+$("menuBtn")
+    .onclick =
+    openSidebar;
+
+
+$("sidebarClose")
+    .onclick =
+    closeSidebar;
 
 
 /* =========================
@@ -1901,6 +2086,9 @@ $("dmTab")
 
         $("chatSub").textContent =
             "Recherche un utilisateur ci-contre";
+
+
+        setChatAvatar(null);
 
 
         $("messages").innerHTML =
@@ -2187,6 +2375,8 @@ if (
         "#111";
 
 }
+
+
 /* =========================
    LANCEMENT
 ========================= */
