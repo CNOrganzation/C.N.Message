@@ -1025,6 +1025,9 @@ let currentUser = null;
 
 let realtimeChannel = null;
 
+const DEFAULT_AVATAR =
+    "https://thumbs.dreamstime.com/b/fond-abstrait-avec-la-vague-bleue-30071626.jpg";
+
 
 /* =========================
    RACCOURCI DOM
@@ -1316,23 +1319,25 @@ function setChatAvatar(url) {
         $("chatAvatar");
 
 
-    if (!url) {
-
-        avatar.style.display =
-            "none";
-
-        avatar.removeAttribute("src");
-
-        return;
-
-    }
+    const finalUrl =
+        url || DEFAULT_AVATAR;
 
 
     avatar.src =
-        url;
+        finalUrl;
 
     avatar.style.display =
         "block";
+
+
+    avatar.onerror = () => {
+
+        avatar.onerror = null;
+
+        avatar.src =
+            DEFAULT_AVATAR;
+
+    };
 
 }
 
