@@ -91,13 +91,40 @@ button{
 ========================= */
 
 .sidebar{
-    min-height:0;
+    flex:0 0 32dvh;
+    height:32dvh;
+    min-height:180px;
+    max-height:280px;
+
+    border-right:0;
+    border-bottom:1px solid #272052;
+
     overflow:hidden;
+
     display:flex;
     flex-direction:column;
-    border-right:1px solid #272052;
-    background:#0b0b17;
-    padding:12px;
+}
+.sidebar .search{
+    flex-shrink:0;
+    position:relative;
+    z-index:10;
+    pointer-events:auto;
+}
+
+.sidebar .tabs{
+    flex-shrink:0;
+}
+
+.sidebar .me{
+    flex-shrink:0;
+}
+
+.sidebar .list{
+    flex:1;
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
 }
 
 .tabs{
