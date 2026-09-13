@@ -3,2203 +3,299 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
 <title>C.N. Message</title>
-
 <style>
 *{box-sizing:border-box}
-
-html,body{
-    width:100%;
-    height:100%;
-    margin:0;
-}
-
-body{
-    font-family:Arial,sans-serif;
-    background:#05050a;
-    color:#fff;
-    overflow:hidden;
-}
-
-button,input{
-    font:inherit;
-}
-
-button{
-    cursor:pointer;
-}
-
-/* =========================
-   APPLICATION
-========================= */
-
-.app{
-    width:100%;
-    max-width:1000px;
-    height:100dvh;
-    margin:auto;
-    background:#090914;
-    display:flex;
-    flex-direction:column;
-    overflow:hidden;
-}
-
-/* =========================
-   BARRE DU HAUT
-========================= */
-
-.top{
-    height:64px;
-    min-height:64px;
-    padding:12px 16px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    border-bottom:1px solid #272052;
-    background:#0d0d1a;
-    z-index:5;
-}
-
-.logo{
-    font-size:20px;
-    font-weight:800;
-    color:#00f0ff;
-    text-shadow:0 0 8px #361FDB;
-}
-
-.status{
-    font-size:12px;
-    color:#8d8da8;
-}
-
-/* =========================
-   STRUCTURE PRINCIPALE
-========================= */
-
-.layout{
-    flex:1;
-    min-height:0;
-    height:calc(100dvh - 64px);
-    display:grid;
-    grid-template-columns:290px 1fr;
-    overflow:hidden;
-}
-
-/* =========================
-   SIDEBAR
-========================= */
-
-.sidebar{
-    min-height:0;
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-    border-right:1px solid #272052;
-    background:#0b0b17;
-    padding:12px;
-}
-
-.tabs{
-    display:flex;
-    gap:6px;
-    margin-bottom:10px;
-    flex-shrink:0;
-}
-
-.tab{
-    flex:1;
-    padding:9px 5px;
-    background:#121226;
-    border:1px solid #30277d;
-    color:#aaa;
-    border-radius:7px;
-}
-
-.tab.active{
-    background:#361FDB;
-    color:#fff;
-}
-
-.search{
-    width:100%;
-    padding:11px;
-    background:#05050a;
-    color:#fff;
-    border:1px solid #30277d;
-    border-radius:7px;
-    outline:none;
-    margin-bottom:10px;
-    flex-shrink:0;
-}
-
-.search:focus{
-    border-color:#00f0ff;
-}
-
-.list{
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-    flex:1;
-    min-height:0;
-    overflow-y:auto;
-    overflow-x:hidden;
-    padding-right:2px;
-}
-
-.item{
-    padding:10px;
-    border:1px solid transparent;
-    border-radius:8px;
-    background:#101021;
-    text-align:left;
-    color:#fff;
-    flex-shrink:0;
-}
-
-.item:hover,
-.item.active{
-    border-color:#361FDB;
-    background:#171734;
-}
-
-.item-title{
-    font-weight:bold;
-}
-
-.item-sub{
-    font-size:11px;
-    color:#8585a5;
-    margin-top:3px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-}
-
-/* =========================
-   ZONE DE DISCUSSION
-========================= */
-
-.chat{
-    min-height:0;
-    height:100%;
-    display:flex;
-    flex-direction:column;
-    overflow:hidden;
-}
-
-/* Nom de la personne / discussion
-   RESTE FIXE */
-.chat-head{
-    flex:0 0 auto;
-    padding:14px 16px;
-    border-bottom:1px solid #272052;
-    background:#0d0d1a;
-    z-index:2;
-}
-
-.chat-name{
-    font-weight:800;
-}
-
-.chat-sub{
-    font-size:11px;
-    color:#77779a;
-    margin-top:3px;
-}
-
-/* =========================
-   MESSAGES
-========================= */
-
-/* SEULE CETTE ZONE SCROLLE */
-.messages{
-    flex:1;
-    min-height:0;
-    overflow-y:auto;
-    overflow-x:hidden;
-    padding:16px;
-    background:#05050a;
-    overscroll-behavior:contain;
-    -webkit-overflow-scrolling:touch;
-}
-
-.message{
-    max-width:78%;
-    margin-bottom:10px;
-    padding:9px 11px;
-    border-radius:10px;
-    background:#101021;
-    border-left:3px solid #361FDB;
-}
-
-.message.mine{
-    margin-left:auto;
-    background:#15113a;
-    border-left:0;
-    border-right:3px solid #00f0ff;
-}
-
-.meta{
-    font-size:11px;
-    color:#00f0ff;
-    margin-bottom:3px;
-}
-
-.text{
-    white-space:pre-wrap;
-    word-break:break-word;
-}
-
-.time{
-    font-size:9px;
-    color:#666680;
-    text-align:right;
-    margin-top:4px;
-}
-
-/* =========================
-   BARRE D'ÉCRITURE
-========================= */
-
-/* RESTE FIXE EN BAS */
-.composer{
-    flex:0 0 auto;
-    padding:12px;
-    padding-bottom:max(12px, env(safe-area-inset-bottom));
-    border-top:1px solid #272052;
-    background:#0d0d1a;
-    display:flex;
-    gap:7px;
-    z-index:2;
-}
-
-.composer input{
-    flex:1;
-    min-width:0;
-    padding:12px;
-    background:#05050a;
-    color:#fff;
-    border:1px solid #30277d;
-    border-radius:8px;
-    outline:none;
-}
-
-.send{
-    padding:12px 15px;
-    background:#361FDB;
-    border:0;
-    color:#fff;
-    border-radius:8px;
-    font-weight:bold;
-}
-
-/* =========================
-   CONNEXION
-========================= */
-
-.login{
-    height:100dvh;
-    min-height:100dvh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-    overflow:auto;
-}
-
-.loginbox{
-    width:100%;
-    max-width:500px;
-    background:#0d0d1a;
-    padding:24px;
-    border-radius:14px;
-    border:2px solid #361FDB;
-    box-shadow:0 0 20px rgba(54,31,219,.25);
-}
-
-.loginbox h1{
-    color:#00f0ff;
-}
-
-.loginbox p{
-    color:#aaa;
-}
-
-.loginbox input{
-    width:100%;
-    padding:13px;
-    background:#05050a;
-    color:#fff;
-    border:1px solid #361FDB;
-    border-radius:7px;
-    margin:8px 0 12px;
-    outline:none;
-}
-
-.primary{
-    width:100%;
-    padding:13px;
-    background:#002FA7;
-    color:#fff;
-    border:1px solid #00f0ff;
-    border-radius:7px;
-    font-weight:bold;
-}
-
-/* =========================
-   AUTRES ÉLÉMENTS
-========================= */
-
-.me{
-    padding:10px;
-    margin-bottom:10px;
-    background:#101021;
-    border-radius:8px;
-    border:1px solid #29245a;
-    font-size:12px;
-    flex-shrink:0;
-}
-
-.empty{
-    color:#77779a;
-    text-align:center;
-    padding:30px 10px;
-}
-
-.error{
-    color:#ff7373;
-    font-size:13px;
-    margin-top:8px;
-}
-
-.hidden{
-    display:none!important;
-}
-
-/* =========================
-   MOBILE
-========================= */
-
+html,body{width:100%;height:100%;margin:0}
+body{font-family:Arial,sans-serif;background:#05050a;color:#fff;overflow:hidden}
+button,input{font:inherit}
+button{cursor:pointer}
+.app{width:100%;max-width:1000px;height:100dvh;margin:auto;background:#090914;display:flex;flex-direction:column;overflow:hidden}
+.top{height:64px;min-height:64px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #272052;background:#0d0d1a;z-index:5}
+.logo{font-size:20px;font-weight:800;color:#00f0ff;text-shadow:0 0 8px #361FDB}
+.status{font-size:12px;color:#8d8da8}
+.layout{flex:1;min-height:0;height:calc(100dvh - 64px);display:grid;grid-template-columns:290px 1fr;overflow:hidden}
+.sidebar{min-height:0;overflow:hidden;display:flex;flex-direction:column;border-right:1px solid #272052;background:#0b0b17;padding:12px}
+.tabs{display:flex;gap:6px;margin-bottom:10px;flex-shrink:0}
+.tab{flex:1;padding:9px 5px;background:#121226;border:1px solid #30277d;color:#aaa;border-radius:7px}
+.tab.active{background:#361FDB;color:#fff}
+.search{width:100%;padding:11px;background:#05050a;color:#fff;border:1px solid #30277d;border-radius:7px;outline:none;margin-bottom:10px;flex-shrink:0}
+.search:focus{border-color:#00f0ff}
+.list{display:flex;flex-direction:column;gap:6px;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding-right:2px}
+.item{padding:10px;border:1px solid transparent;border-radius:8px;background:#101021;text-align:left;color:#fff;flex-shrink:0}
+.item:hover,.item.active{border-color:#361FDB;background:#171734}
+.item-title{font-weight:bold}
+.item-sub{font-size:11px;color:#8585a5;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat{min-height:0;height:100%;display:flex;flex-direction:column;overflow:hidden}
+.chat-head{flex:0 0 auto;padding:14px 16px;border-bottom:1px solid #272052;background:#0d0d1a;z-index:2}
+.chat-name{font-weight:800}
+.chat-sub{font-size:11px;color:#77779a;margin-top:3px}
+.messages{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:16px;background:#05050a;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.message{max-width:78%;margin-bottom:10px;padding:9px 11px;border-radius:10px;background:#101021;border-left:3px solid #361FDB}
+.message.mine{margin-left:auto;background:#15113a;border-left:0;border-right:3px solid #00f0ff}
+.meta{font-size:11px;color:#00f0ff;margin-bottom:3px}
+.text{white-space:pre-wrap;word-break:break-word}
+.time{font-size:9px;color:#666680;text-align:right;margin-top:4px}
+.composer{flex:0 0 auto;padding:12px;padding-bottom:max(12px,env(safe-area-inset-bottom));border-top:1px solid #272052;background:#0d0d1a;display:flex;gap:7px;z-index:2}
+.composer input{flex:1;min-width:0;padding:12px;background:#05050a;color:#fff;border:1px solid #30277d;border-radius:8px;outline:none}
+.send{padding:12px 15px;background:#361FDB;border:0;color:#fff;border-radius:8px;font-weight:bold}
+.login{height:100dvh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto}
+.loginbox{width:100%;max-width:500px;background:#0d0d1a;padding:24px;border-radius:14px;border:2px solid #361FDB;box-shadow:0 0 20px rgba(54,31,219,.25)}
+.loginbox h1{color:#00f0ff}
+.loginbox p{color:#aaa}
+.loginbox input{width:100%;padding:13px;background:#05050a;color:#fff;border:1px solid #361FDB;border-radius:7px;margin:8px 0 12px;outline:none}
+.primary{width:100%;padding:13px;background:#002FA7;color:#fff;border:1px solid #00f0ff;border-radius:7px;font-weight:bold}
+.me{padding:10px;margin-bottom:10px;background:#101021;border-radius:8px;border:1px solid #29245a;font-size:12px;flex-shrink:0}
+.empty{color:#77779a;text-align:center;padding:30px 10px}
+.error{color:#ff7373;font-size:13px;margin-top:8px}
+.hidden{display:none!important}
 @media(max-width:700px){
-
-    .layout{
-        display:flex;
-        flex-direction:column;
-        height:calc(100dvh - 64px);
-        min-height:0;
-    }
-
-    /*
-       La partie Mondial/Privé reste en haut.
-       Seule la liste des utilisateurs défile.
-    */
-    .sidebar{
-        flex:0 0 32dvh;
-        height:32dvh;
-        min-height:180px;
-        max-height:280px;
-        border-right:0;
-        border-bottom:1px solid #272052;
-    }
-
-    .chat{
-        flex:1;
-        min-height:0;
-        height:auto;
-    }
-
-    .chat-head{
-        flex-shrink:0;
-    }
-
-    .messages{
-        flex:1;
-        min-height:0;
-    }
-
-    .composer{
-        flex-shrink:0;
-    }
-
-    .item{
-        padding:8px;
-    }
+.layout{display:flex;flex-direction:column;height:calc(100dvh - 64px);min-height:0}
+.sidebar{flex:0 0 32dvh;height:32dvh;min-height:180px;max-height:280px;border-right:0;border-bottom:1px solid #272052}
+.chat{flex:1;min-height:0;height:auto}
+.chat-head{flex-shrink:0}
+.messages{flex:1;min-height:0}
+.composer{flex-shrink:0}
+.item{padding:8px}
 }
-
-/* =========================
-   PETITS ÉCRANS
-========================= */
-
 @media(max-width:380px){
-
-    .top{
-        padding:10px 12px;
-    }
-
-    .logo{
-        font-size:17px;
-    }
-
-    .status{
-        font-size:10px;
-    }
-
-    .sidebar{
-        flex-basis:30dvh;
-        height:30dvh;
-        min-height:160px;
-    }
-
-    .messages{
-        padding:10px;
-    }
-
-    .message{
-        max-width:88%;
-    }
-
-    .composer{
-        padding:8px;
-    }
-
-    .send{
-        padding:10px 12px;
-    }
+.top{padding:10px 12px}
+.logo{font-size:17px}
+.status{font-size:10px}
+.sidebar{flex-basis:30dvh;height:30dvh;min-height:160px}
+.messages{padding:10px}
+.message{max-width:88%}
+.composer{padding:8px}
+.send{padding:10px 12px}
 }
 </style>
 </head>
-
 <body>
-
-<!-- =========================
-     ÉCRAN DE CONNEXION
-========================= -->
-
 <div id="login" class="login">
-
-    <div class="loginbox">
-
-        <h1>💬 C.N. Message</h1>
-
-        <p>
-            Crée ton identité réseau.
-            Ton pseudo sera accompagné d'un identifiant unique.
-        </p>
-
-        <input
-            id="pseudo"
-            maxlength="24"
-            autocomplete="off"
-            autocapitalize="none"
-            placeholder="Ex : Alexis"
-        >
-
-        <button
-            class="primary"
-            id="createBtn"
-        >
-            Initialiser la connexion
-        </button>
-
-        <div
-            id="loginError"
-            class="error"
-        ></div>
-
-    </div>
-
+<div class="loginbox">
+<h1>💬 C.N. Message</h1>
+<p>Crée ton identité réseau. Ton pseudo sera accompagné d'un identifiant unique.</p>
+<input id="pseudo" maxlength="24" autocomplete="off" autocapitalize="none" placeholder="Ex : Alexis">
+<button class="primary" id="createBtn">Initialiser la connexion</button>
+<div id="loginError" class="error"></div>
 </div>
-
-
-<!-- =========================
-     APPLICATION
-========================= -->
-
-<div
-    id="app"
-    class="app hidden"
->
-
-    <!-- BARRE DU HAUT -->
-
-    <header class="top">
-
-        <div class="logo">
-            💬 C.N. Message
-        </div>
-
-        <div style="display:flex;align-items:center;gap:10px;">
-    <div id="status" class="status">
-        Connexion…
-    </div>
-
-    <button
-        id="settingsBtn"
-        style="
-            background:#121226;
-            border:1px solid #361FDB;
-            color:white;
-            border-radius:8px;
-            padding:8px 10px;
-            font-size:18px;
-        "
-    >⚙️</button>
 </div>
-
-    </header>
-
-
-    <div class="layout">
-
-        <!-- =========================
-             MENU
-        ========================= -->
-
-        <aside class="sidebar">
-
-            <div
-                id="me"
-                class="me"
-            ></div>
-
-
-            <div class="tabs">
-
-                <button
-                    id="worldTab"
-                    class="tab active"
-                >
-                    🌍 Mondial
-                </button>
-
-                <button
-                    id="dmTab"
-                    class="tab"
-                >
-                    💬 Privé
-                </button>
-
-            </div>
-
-
-            <input
-                id="search"
-                class="search"
-                placeholder="Rechercher un utilisateur…"
-            >
-
-
-            <div
-                id="list"
-                class="list"
-            ></div>
-
-        </aside>
-
-
-        <!-- =========================
-             CHAT
-        ========================= -->
-
-        <main class="chat">
-
-            <div class="chat-head">
-
-                <div
-                    id="chatName"
-                    class="chat-name"
-                >
-                    🌍 Mondial
-                </div>
-
-                <div
-                    id="chatSub"
-                    class="chat-sub"
-                >
-                    Tout le réseau
-                </div>
-
-            </div>
-
-
-            <div
-                id="messages"
-                class="messages"
-            ></div>
-
-
-            <div class="composer">
-
-                <input
-                    type="text"
-                    id="messageInput"
-                    maxlength="2000"
-                    placeholder="Écris ton message…"
-                >
-
-                <button
-                    id="sendBtn"
-                    class="send"
-                >
-                    Envoyer
-                </button>
-
-            </div>
-
-        </main>
-
-    </div>
-
+<div id="app" class="app hidden">
+<header class="top">
+<div class="logo">💬 C.N. Message</div>
+<div id="status" class="status">Connexion…</div>
+</header>
+<div class="layout">
+<aside class="sidebar">
+<div id="me" class="me"></div>
+<div class="tabs">
+<button id="worldTab" class="tab active">🌍 Mondial</button>
+<button id="dmTab" class="tab">💬 Privé</button>
 </div>
-
-<!-- =========================
-     PARAMÈTRES
-========================= -->
-
-<div
-    id="settingsPanel"
-    class="hidden"
-    style="
-        position:fixed;
-        inset:0;
-        z-index:100;
-        background:rgba(0,0,0,.75);
-        padding:20px;
-        overflow-y:auto;
-    "
->
-
-    <div
-        style="
-            max-width:500px;
-            margin:40px auto;
-            background:#0d0d1a;
-            border:2px solid #361FDB;
-            border-radius:14px;
-            padding:20px;
-            box-shadow:0 0 25px rgba(54,31,219,.4);
-        "
-    >
-
-        <div
-            style="
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-                margin-bottom:20px;
-            "
-        >
-
-            <h2 style="margin:0;color:#00f0ff;">
-                ⚙️ Paramètres
-            </h2>
-
-            <button
-                id="closeSettings"
-                style="
-                    background:#121226;
-                    border:1px solid #361FDB;
-                    color:white;
-                    border-radius:7px;
-                    padding:7px 10px;
-                "
-            >✕</button>
-
-        </div>
-
-
-        <!-- PROFIL -->
-
-        <h3 style="color:#00f0ff;">
-            👤 Profil
-        </h3>
-
-        <label>
-            Pseudo
-        </label>
-
-        <input
-            id="settingsPseudo"
-            type="text"
-            maxlength="24"
-            style="
-                width:100%;
-                padding:12px;
-                margin-top:6px;
-                background:#05050a;
-                color:white;
-                border:1px solid #30277d;
-                border-radius:7px;
-            "
-        >
-
-
-        <label style="display:block;margin-top:15px;">
-            Photo de profil — lien de l'image
-        </label>
-
-        <input
-            id="settingsAvatar"
-            type="url"
-            placeholder="https://..."
-            style="
-                width:100%;
-                padding:12px;
-                margin-top:6px;
-                background:#05050a;
-                color:white;
-                border:1px solid #30277d;
-                border-radius:7px;
-            "
-        >
-
-        <p
-            style="
-                color:#77779a;
-                font-size:12px;
-            "
-        >
-            Utilise un lien direct vers une image.
-        </p>
-
-
-        <img
-            id="avatarPreview"
-            src=""
-            alt="Aperçu"
-            style="
-                width:70px;
-                height:70px;
-                border-radius:50%;
-                object-fit:cover;
-                border:2px solid #00f0ff;
-                background:#361FDB;
-                display:none;
-                margin:10px 0;
-            "
-        >
-
-
-        <!-- APPARENCE -->
-
-        <h3 style="color:#00f0ff;margin-top:25px;">
-            🎨 Apparence
-        </h3>
-
-        <div style="display:flex;gap:8px;">
-
-            <button
-                id="darkModeBtn"
-                style="
-                    flex:1;
-                    padding:12px;
-                    background:#121226;
-                    color:white;
-                    border:1px solid #361FDB;
-                    border-radius:7px;
-                "
-            >
-                🌙 Sombre
-            </button>
-
-            <button
-                id="lightModeBtn"
-                style="
-                    flex:1;
-                    padding:12px;
-                    background:#121226;
-                    color:white;
-                    border:1px solid #361FDB;
-                    border-radius:7px;
-                "
-            >
-                ☀️ Clair
-            </button>
-
-        </div>
-
-
-        <button
-            id="saveSettings"
-            style="
-                width:100%;
-                margin-top:25px;
-                padding:13px;
-                background:#361FDB;
-                color:white;
-                border:0;
-                border-radius:8px;
-                font-weight:bold;
-            "
-        >
-            💾 Enregistrer
-        </button>
-
-        <div
-            id="settingsMessage"
-            style="
-                margin-top:10px;
-                text-align:center;
-                color:#00f0ff;
-                font-size:13px;
-            "
-        ></div>
-
-    </div>
-
+<input id="search" class="search" placeholder="Rechercher un utilisateur…">
+<div id="list" class="list"></div>
+</aside>
+<main class="chat">
+<div class="chat-head">
+<div id="chatName" class="chat-name">🌍 Mondial</div>
+<div id="chatSub" class="chat-sub">Tout le réseau</div>
 </div>
-<!-- =========================
-     JAVASCRIPT
-========================= -->
-
+<div id="messages" class="messages"></div>
+<div class="composer">
+<input type="text" id="messageInput" maxlength="2000" placeholder="Écris ton message…">
+<button id="sendBtn" class="send">Envoyer</button>
+</div>
+</main>
+</div>
+</div>
 <script type="module">
-
-import {
-    createClient
-} from "https://esm.sh/@supabase/supabase-js@2";
-
-
-
-/*
-==========================================================
-IMPORTANT
-
-TU REMPLACERAS CES DEUX VALEURS APRÈS AVOIR CRÉÉ SUPABASE.
-
-==========================================================
-*/
-
+import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
 const SUPABASE_URL = "https://kmeuxlqtwsgauajmwsav.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_bUgTtZXn7zfY3_y8fdL5zg_u675RwY1";
-
-
-
-const supabase =
-    createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-    );
-
-
-
-/* =========================
-   VARIABLES
-========================= */
-
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let user = null;
-
 let profile = null;
-
 let currentMode = "world";
-
 let currentUser = null;
-
 let realtimeChannel = null;
-
-
-
-/* =========================
-   RACCOURCI DOM
-========================= */
-
-const $ = id =>
-    document.getElementById(id);
-
-
-
-/* =========================
-   PROTECTION TEXTE
-========================= */
-
-function escapeText(value) {
-
-    return String(value ?? "");
-
-}
-
-
-
-/* =========================
-   AUTHENTIFICATION
-========================= */
-
+const $ = id => document.getElementById(id);
+function escapeText(value) {return String(value ?? "");}
 async function ensureAuth() {
-
-    let {
-        data: {
-            session
-        }
-    } =
-        await supabase.auth.getSession();
-
-
-    if (!session) {
-
-        const {
-            data,
-            error
-        } =
-            await supabase.auth.signInAnonymously();
-
-
-        if (error)
-            throw error;
-
-
-        session = data.session;
-
-    }
-
-
-    user = session.user;
-
+let {data: {session}} = await supabase.auth.getSession();
+if (!session) {
+const {data, error} = await supabase.auth.signInAnonymously();
+if (error) throw error;
+session = data.session;
 }
-
-
-
-/* =========================
-   CHARGER PROFIL
-========================= */
-
+user = session.user;
+}
 async function loadProfile() {
-
-    const {
-        data,
-        error
-    } =
-        await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", user.id)
-            .single();
-
-
-    if (error)
-        throw error;
-
-
-    profile = data;
-
-
-    $("me").innerHTML =
-
-        `<b>${escapeText(profile.pseudo)}</b>
-        <span style="color:#361FDB">
-        #${profile.network_id}
-        </span>`;
-
+const {data, error} = await supabase.from("profiles").select("*").eq("id", user.id).single();
+if (error) throw error;
+profile = data;
+$("me").innerHTML = `<b>${escapeText(profile.pseudo)}</b><span style="color:#361FDB">#${profile.network_id}</span>`;
 }
-
-
-
-/* =========================
-   INITIALISATION
-========================= */
-
 async function init() {
-
-    try {
-
-        if (
-            SUPABASE_URL.includes("COLLE_")
-        ) {
-
-            throw new Error(
-                "Configure d'abord Supabase dans le fichier index.html."
-            );
-
-        }
-
-
-        await ensureAuth();
-
-        await loadProfile();
-
-
-        $("login")
-            .classList
-            .add("hidden");
-
-
-        $("app")
-            .classList
-            .remove("hidden");
-
-
-        $("status").textContent =
-            "● En ligne";
-
-
-        await openWorld();
-
-
-    }
-    catch (e) {
-
-        $("loginError").textContent =
-            e.message ||
-            "Erreur de connexion.";
-
-    }
-
+try {
+if (SUPABASE_URL.includes("COLLE_")) throw new Error("Configure d'abord Supabase dans le fichier index.html.");
+await ensureAuth();
+await loadProfile();
+$("login").classList.add("hidden");
+$("app").classList.remove("hidden");
+$("status").textContent = "● En ligne";
+await openWorld();
+} catch (e) {
+$("loginError").textContent = e.message || "Erreur de connexion.";
 }
-
-
-
-/* =========================
-   CRÉER COMPTE
-========================= */
-
+}
 async function createProfile() {
-
-    const pseudo =
-        $("pseudo")
-            .value
-            .trim();
-
-
-    if (!pseudo) {
-
-        $("loginError").textContent =
-            "Pseudo obligatoire.";
-
-        return;
-
-    }
-
-
-    if (
-        !/^[A-Za-zÀ-ÿ0-9_ -]{2,24}$/
-            .test(pseudo)
-    ) {
-
-        $("loginError").textContent =
-            "Pseudo : 2 à 24 caractères, sans symbole spécial.";
-
-        return;
-
-    }
-
-
-    $("createBtn").disabled = true;
-
-    $("loginError").textContent = "";
-
-
-    try {
-
-        let {
-            data: {
-                session
-            }
-        } =
-            await supabase
-                .auth
-                .getSession();
-
-
-        if (!session) {
-
-            const {
-                data,
-                error
-            } =
-                await supabase
-                    .auth
-                    .signInAnonymously();
-
-
-            if (error)
-                throw error;
-
-
-            session =
-                data.session;
-
-        }
-
-
-        user =
-            session.user;
-
-
-        const {
-            data,
-            error
-        } =
-            await supabase
-                .rpc(
-                    "create_profile",
-                    {
-                        p_pseudo: pseudo
-                    }
-                );
-
-
-        if (error)
-            throw error;
-
-
-        profile = data;
-
-
-        $("login")
-            .classList
-            .add("hidden");
-
-
-        $("app")
-            .classList
-            .remove("hidden");
-
-
-        $("me").innerHTML =
-
-            `<b>${escapeText(profile.pseudo)}</b>
-            <span style="color:#361FDB">
-            #${profile.network_id}
-            </span>`;
-
-
-        $("status").textContent =
-            "● En ligne";
-
-
-        await openWorld();
-
-    }
-    catch (e) {
-
-        $("loginError").textContent =
-            e.message ||
-            "Impossible de créer le profil.";
-
-
-        $("createBtn").disabled =
-            false;
-
-    }
-
+const pseudo = $("pseudo").value.trim();
+if (!pseudo) {$("loginError").textContent = "Pseudo obligatoire."; return;}
+if (!/^[A-Za-zÀ-ÿ0-9_ -]{2,24}$/.test(pseudo)) {
+$("loginError").textContent = "Pseudo : 2 à 24 caractères, sans symbole spécial.";
+return;
 }
-
-
-
-/* =========================
-   AFFICHER LES MESSAGES
-========================= */
-
+$("createBtn").disabled = true;
+$("loginError").textContent = "";
+try {
+let {data: {session}} = await supabase.auth.getSession();
+if (!session) {
+const {data, error} = await supabase.auth.signInAnonymously();
+if (error) throw error;
+session = data.session;
+}
+user = session.user;
+const {data, error} = await supabase.rpc("create_profile", {p_pseudo: pseudo});
+if (error) throw error;
+profile = data;
+$("login").classList.add("hidden");
+$("app").classList.remove("hidden");
+$("me").innerHTML = `<b>${escapeText(profile.pseudo)}</b><span style="color:#361FDB">#${profile.network_id}</span>`;
+$("status").textContent = "● En ligne";
+await openWorld();
+} catch (e) {
+$("loginError").textContent = e.message || "Impossible de créer le profil.";
+$("createBtn").disabled = false;
+}
+}
 function setMessages(rows) {
-
-    $("messages").innerHTML = "";
-
-
-    if (!rows?.length) {
-
-        $("messages").innerHTML =
-            '<div class="empty">Aucun message pour le moment.</div>';
-
-        return;
-
-    }
-
-
-    for (const row of rows) {
-
-        addMessage(row);
-
-    }
-
-
-    $("messages").scrollTop =
-        $("messages").scrollHeight;
-
+$("messages").innerHTML = "";
+if (!rows?.length) {
+$("messages").innerHTML = '<div class="empty">Aucun message pour le moment.</div>';
+return;
 }
-
-
-
-/* =========================
-   AJOUTER UN MESSAGE
-========================= */
-
+for (const row of rows) addMessage(row);
+$("messages").scrollTop = $("messages").scrollHeight;
+}
 function addMessage(row) {
-
-    const empty =
-        $("messages")
-            .querySelector(".empty");
-
-
-    if (empty)
-        empty.remove();
-
-
-    const div =
-        document.createElement("div");
-
-
-    div.className =
-        "message" +
-        (
-            row.sender_id === user.id
-                ? " mine"
-                : ""
-        );
-
-
-    div.innerHTML =
-
-        `<div class="meta">
-            ${escapeText(
-                row.sender?.pseudo ||
-                (
-                    row.sender_id === user.id
-                        ? profile.pseudo
-                        : "Utilisateur"
-                )
-            )}
-
-            <span style="color:#55557a">
-                #${row.sender?.network_id || ""}
-            </span>
-        </div>
-
-        <div class="text"></div>
-
-        <div class="time">
-            ${new Date(
-                row.created_at
-            ).toLocaleTimeString(
-                "fr-FR",
-                {
-                    hour: "2-digit",
-                    minute: "2-digit"
-                }
-            )}
-        </div>`;
-
-
-    div.querySelector(".text")
-        .textContent = row.body;
-
-
-    $("messages")
-        .appendChild(div);
-
+const empty = $("messages").querySelector(".empty");
+if (empty) empty.remove();
+const div = document.createElement("div");
+div.className = "message" + (row.sender_id === user.id ? " mine" : "");
+div.innerHTML = `<div class="meta">${escapeText(row.sender?.pseudo || (row.sender_id === user.id ? profile.pseudo : "Utilisateur"))}<span style="color:#55557a">#${row.sender?.network_id || ""}</span></div><div class="text"></div><div class="time">${new Date(row.created_at).toLocaleTimeString("fr-FR", {hour: "2-digit", minute: "2-digit"})}</div>`;
+div.querySelector(".text").textContent = row.body;
+$("messages").appendChild(div);
 }
-
-
-
-/* =========================
-   OUVRIR MONDIAL
-========================= */
-
 async function openWorld() {
-
-    currentMode =
-        "world";
-
-    currentUser =
-        null;
-
-
-    $("worldTab")
-        .classList
-        .add("active");
-
-
-    $("dmTab")
-        .classList
-        .remove("active");
-
-
-    $("chatName").textContent =
-        "🌍 Mondial";
-
-
-    $("chatSub").textContent =
-        "Tout le réseau";
-
-
-    if (realtimeChannel) {
-
-        await supabase
-            .removeChannel(
-                realtimeChannel
-            );
-
-    }
-
-
-    const {
-        data,
-        error
-    } =
-        await supabase
-            .from("world_messages")
-            .select(
-                "*,sender:profiles!world_messages_sender_id_fkey(pseudo,network_id)"
-            )
-            .order(
-                "created_at",
-                {
-                    ascending: true
-                }
-            )
-            .limit(200);
-
-
-    if (error) {
-
-        showError(error);
-
-        return;
-
-    }
-
-
-    setMessages(data);
-
-
-    /*
-    ==============================================
-    TEMPS RÉEL DU MONDIAL
-    ==============================================
-    */
-
-    realtimeChannel =
-
-        supabase
-            .channel("world-live")
-
-            .on(
-                "postgres_changes",
-                {
-                    event: "INSERT",
-                    schema: "public",
-                    table: "world_messages"
-                },
-
-                async payload => {
-
-                    const {
-                        data
-                    } =
-                        await supabase
-                            .from("world_messages")
-                            .select(
-                                "*,sender:profiles!world_messages_sender_id_fkey(pseudo,network_id)"
-                            )
-                            .eq(
-                                "id",
-                                payload.new.id
-                            )
-                            .single();
-
-
-                    if (data) {
-
-                        addMessage(data);
-
-                        $("messages")
-                            .scrollTop =
-                            $("messages")
-                                .scrollHeight;
-
-                    }
-
-                }
-
-            )
-
-            .subscribe();
-
+currentMode = "world";
+currentUser = null;
+$("worldTab").classList.add("active");
+$("dmTab").classList.remove("active");
+$("chatName").textContent = "🌍 Mondial";
+$("chatSub").textContent = "Tout le réseau";
+$("search").value = "";
+$("list").innerHTML = "";
+if (realtimeChannel) await supabase.removeChannel(realtimeChannel);
+const {data, error} = await supabase.from("world_messages").select("*,sender:profiles!world_messages_sender_id_fkey(pseudo,network_id)").order("created_at", {ascending: true}).limit(200);
+if (error) {showError(error); return;}
+setMessages(data);
+realtimeChannel = supabase.channel("world-live").on("postgres_changes", {event: "INSERT", schema: "public", table: "world_messages"}, async payload => {
+const {data} = await supabase.from("world_messages").select("*,sender:profiles!world_messages_sender_id_fkey(pseudo,network_id)").eq("id", payload.new.id).single();
+if (data) {addMessage(data); $("messages").scrollTop = $("messages").scrollHeight;}
+}).subscribe();
 }
-
-
-
-/* =========================
-   RECHERCHE UTILISATEURS
-========================= */
-
 async function searchUsers() {
-
-    const q =
-        $("search")
-            .value
-            .trim();
-
-
-    $("list").innerHTML = "";
-
-
-    if (
-        currentMode === "world"
-    ) {
-
-        if (!q) {
-
-            $("list").innerHTML =
-                '<div class="empty">Passe en 💬 Privé pour rechercher un utilisateur.</div>';
-
-            return;
-
-        }
-
-    }
-
-
-    if (!q)
-        return;
-
-
-    const {
-        data,
-        error
-    } =
-        await supabase
-            .from("profiles")
-            .select(
-                "id,pseudo,network_id"
-            )
-            .neq(
-                "id",
-                user.id
-            )
-            .or(
-                `pseudo.ilike.%${q}%,network_id.eq.${Number(q) || 0}`
-            )
-            .limit(20);
-
-
-    if (error)
-        return;
-
-
-    for (const p of data) {
-
-        const b =
-            document.createElement("button");
-
-
-        b.className =
-            "item";
-
-
-        b.innerHTML =
-
-            `<div class="item-title">
-                ${escapeText(p.pseudo)}
-            </div>
-
-            <div class="item-sub">
-                #${p.network_id}
-            </div>`;
-
-
-        b.onclick =
-            () => openDM(p);
-
-
-        $("list")
-            .appendChild(b);
-
-    }
-
-
-    if (!data.length) {
-
-        $("list").innerHTML =
-            '<div class="empty">Aucun utilisateur trouvé.</div>';
-
-    }
-
+const q = $("search").value.trim().toLowerCase();
+$("list").innerHTML = "";
+if (currentMode === "world") {
+if (!q) {
+$("list").innerHTML = '<div class="empty">Passe en 💬 Privé pour rechercher un utilisateur.</div>';
+return;
 }
-
-
-
-/* =========================
-   OUVRIR DISCUSSION PRIVÉE
-========================= */
-
+}
+if (!q) return;
+const {data, error} = await supabase.from("profiles").select("id,pseudo,network_id").neq("id", user.id).or(`pseudo.ilike.%${q}%,network_id.eq.${Number(q) || 0}`).limit(20);
+if (error) return;
+if (!data || data.length === 0) {
+$("list").innerHTML = '<div class="empty">Aucun utilisateur trouvé.</div>';
+return;
+}
+for (const p of data) {
+const b = document.createElement("button");
+b.className = "item";
+b.innerHTML = `<div class="item-title">${escapeText(p.pseudo)}</div><div class="item-sub">#${p.network_id}</div>`;
+b.onclick = () => openDM(p);
+$("list").appendChild(b);
+}
+}
 async function openDM(other) {
-
-    currentMode =
-        "dm";
-
-    currentUser =
-        other;
-
-
-    $("worldTab")
-        .classList
-        .remove("active");
-
-
-    $("dmTab")
-        .classList
-        .add("active");
-
-
-    $("chatName").textContent =
-        `💬 ${other.pseudo}`;
-
-
-    $("chatSub").textContent =
-        `${other.pseudo} #${other.network_id}`;
-
-
-    if (realtimeChannel) {
-
-        await supabase
-            .removeChannel(
-                realtimeChannel
-            );
-
-    }
-
-
-    /*
-    ==========================================
-    CHARGER L'HISTORIQUE DU MP
-    ==========================================
-    */
-
-    const {
-        data,
-        error
-    } =
-        await supabase
-            .rpc(
-                "get_private_messages",
-                {
-                    other_user_id:
-                        other.id
-                }
-            );
-
-
-    if (error) {
-
-        showError(error);
-
-        return;
-
-    }
-
-
-    /*
-    IMPORTANT :
-
-    Le RPC renvoie les informations de
-    l'expéditeur directement.
-
-    On transforme ici le résultat pour
-    utiliser le même système d'affichage.
-    */
-
-    const formatted =
-        (data || []).map(row => ({
-
-            id:
-                row.id,
-
-            sender_id:
-                row.sender_id,
-
-            receiver_id:
-                row.receiver_id,
-
-            body:
-                row.body,
-
-            created_at:
-                row.created_at,
-
-            sender: {
-
-                pseudo:
-                    row.pseudo,
-
-                network_id:
-                    row.network_id
-
-            }
-
-        }));
-
-
-    setMessages(formatted);
-
-
-
-    /*
-    ==========================================
-    TEMPS RÉEL DES MP
-    ==========================================
-    */
-
-    realtimeChannel =
-
-        supabase
-            .channel(
-                "dm-" +
-                [user.id, other.id]
-                    .sort()
-                    .join("-")
-            )
-
-            .on(
-                "postgres_changes",
-                {
-                    event: "INSERT",
-                    schema: "public",
-                    table: "private_messages"
-                },
-
-                async payload => {
-
-                    const r =
-                        payload.new;
-
-
-                    /*
-                    On ne garde que les messages
-                    entre les deux personnes.
-                    */
-
-                    if (
-
-                        (
-                            r.sender_id === user.id &&
-                            r.receiver_id === other.id
-                        )
-
-                        ||
-
-                        (
-                            r.sender_id === other.id &&
-                            r.receiver_id === user.id
-                        )
-
-                    ) {
-
-                        const {
-                            data
-                        } =
-                            await supabase
-                                .from("private_messages")
-                                .select(
-                                    "*,sender:profiles!private_messages_sender_id_fkey(pseudo,network_id)"
-                                )
-                                .eq(
-                                    "id",
-                                    r.id
-                                )
-                                .single();
-
-
-                        if (data) {
-
-                            addMessage(data);
-
-                            $("messages")
-                                .scrollTop =
-                                $("messages")
-                                    .scrollHeight;
-
-                        }
-
-                    }
-
-                }
-
-            )
-
-            .subscribe();
-
+currentMode = "dm";
+currentUser = other;
+$("worldTab").classList.remove("active");
+$("dmTab").classList.add("active");
+$("chatName").textContent = `💬 ${other.pseudo}`;
+$("chatSub").textContent = `${other.pseudo} #${other.network_id}`;
+if (realtimeChannel) await supabase.removeChannel(realtimeChannel);
+const {data, error} = await supabase.rpc("get_private_messages", {other_user_id: other.id});
+if (error) {showError(error); return;}
+const formatted = (data || []).map(row => ({id: row.id, sender_id: row.sender_id, receiver_id: row.receiver_id, body: row.body, created_at: row.created_at, sender: {pseudo: row.pseudo, network_id: row.network_id}}));
+setMessages(formatted);
+realtimeChannel = supabase.channel("dm-" + [user.id, other.id].sort().join("-")).on("postgres_changes", {event: "INSERT", schema: "public", table: "private_messages"}, async payload => {
+const r = payload.new;
+if ((r.sender_id === user.id && r.receiver_id === other.id) || (r.sender_id === other.id && r.receiver_id === user.id)) {
+const {data} = await supabase.from("private_messages").select("*,sender:profiles!private_messages_sender_id_fkey(pseudo,network_id)").eq("id", r.id).single();
+if (data) {addMessage(data); $("messages").scrollTop = $("messages").scrollHeight;}
 }
-
-
-
-/* =========================
-   ENVOYER MESSAGE
-========================= */
-
+}).subscribe();
+}
 async function sendMessage() {
-
-    const body =
-        $("messageInput")
-            .value
-            .trim();
-
-
-    if (!body)
-        return;
-
-
-    $("sendBtn")
-        .disabled = true;
-
-
-    try {
-
-        /*
-        ==============================
-        MONDIAL
-        ==============================
-        */
-
-        if (
-            currentMode === "world"
-        ) {
-
-            const {
-                error
-            } =
-                await supabase
-                    .from("world_messages")
-                    .insert({
-                        sender_id:
-                            user.id,
-
-                        body:
-                            body
-                    });
-
-
-            if (error)
-                throw error;
-
-        }
-
-
-        /*
-        ==============================
-        MESSAGE PRIVÉ
-        ==============================
-        */
-
-        else {
-
-            const {
-                error
-            } =
-                await supabase
-                    .from("private_messages")
-                    .insert({
-
-                        sender_id:
-                            user.id,
-
-                        receiver_id:
-                            currentUser.id,
-
-                        body:
-                            body
-
-                    });
-
-
-            if (error)
-                throw error;
-
-        }
-
-
-        $("messageInput")
-            .value = "";
-
-    }
-    catch (e) {
-
-        showError(e);
-
-    }
-
-
-    $("sendBtn")
-        .disabled = false;
-
+const body = $("messageInput").value.trim();
+if (!body) return;
+$("sendBtn").disabled = true;
+try {
+if (currentMode === "world") {
+const {error} = await supabase.from("world_messages").insert({sender_id: user.id, body: body});
+if (error) throw error;
+} else {
+const {error} = await supabase.from("private_messages").insert({sender_id: user.id, receiver_id: currentUser.id, body: body});
+if (error) throw error;
 }
-
-
-
-/* =========================
-   AFFICHER ERREUR
-========================= */
-
+$("messageInput").value = "";
+} catch (e) {
+showError(e);
+}
+$("sendBtn").disabled = false;
+}
 function showError(e) {
-
-    $("messages").innerHTML =
-
-        `<div class="empty">
-            ${escapeText(
-                e.message ||
-                "Une erreur est survenue."
-            )}
-        </div>`;
-
+$("messages").innerHTML = `<div class="empty">${escapeText(e.message || "Une erreur est survenue.")}</div>`;
 }
-
-
-
-/* =========================
-   BOUTONS
-========================= */
-
-$("createBtn")
-    .onclick =
-    createProfile;
-
-
-$("sendBtn")
-    .onclick =
-    sendMessage;
-
-
-$("messageInput")
-    .addEventListener(
-        "keydown",
-        e => {
-
-            if (
-                e.key === "Enter" &&
-                !e.shiftKey
-            ) {
-
-                e.preventDefault();
-
-                sendMessage();
-
-            }
-
-        }
-    );
-
-
-$("worldTab")
-    .onclick =
-    openWorld;
-
-
-$("dmTab")
-    .onclick =
-    () => {
-
-        currentMode =
-            "dm";
-
-
-        $("dmTab")
-            .classList
-            .add("active");
-
-
-        $("worldTab")
-            .classList
-            .remove("active");
-
-
-        $("chatName").textContent =
-            "💬 Privé";
-
-
-        $("chatSub").textContent =
-            "Recherche un utilisateur ci-contre";
-
-
-        $("messages").innerHTML =
-
-            '<div class="empty">' +
-            'Recherche un pseudo ou un #ID pour démarrer une discussion.' +
-            '</div>';
-
-    };
-
-
-$("search")
-    .addEventListener(
-        "input",
-        searchUsers
-    );
-
-
-/* =========================
-   PARAMÈTRES
-========================= */
-
-const settingsPanel =
-    $("settingsPanel");
-
-const settingsPseudo =
-    $("settingsPseudo");
-
-const settingsAvatar =
-    $("settingsAvatar");
-
-const avatarPreview =
-    $("avatarPreview");
-
-
-/* OUVRIR */
-
-$("settingsBtn").onclick = () => {
-
-    settingsPseudo.value =
-        profile.pseudo;
-
-    settingsAvatar.value =
-        profile.avatar_url || "";
-
-    updateAvatarPreview();
-
-    settingsPanel
-        .classList
-        .remove("hidden");
-
+$("createBtn").onclick = createProfile;
+$("sendBtn").onclick = sendMessage;
+$("messageInput").addEventListener("keydown", e => {
+if (e.key === "Enter" && !e.shiftKey) {e.preventDefault(); sendMessage();}
+});
+$("worldTab").onclick = openWorld;
+$("dmTab").onclick = () => {
+currentMode = "dm";
+$("dmTab").classList.add("active");
+$("worldTab").classList.remove("active");
+$("chatName").textContent = "💬 Privé";
+$("chatSub").textContent = "Recherche un utilisateur ci-contre";
+$("messages").innerHTML = '<div class="empty">Recherche un pseudo ou un #ID pour démarrer une discussion.</div>';
+$("search").value = "";
 };
-
-
-/* FERMER */
-
-$("closeSettings").onclick = () => {
-
-    settingsPanel
-        .classList
-        .add("hidden");
-
-};
-
-
-/* APERÇU PDP */
-
-function updateAvatarPreview() {
-
-    const url =
-        settingsAvatar.value.trim();
-
-
-    if (!url) {
-
-        avatarPreview.style.display =
-            "none";
-
-        return;
-
-    }
-
-
-    avatarPreview.src =
-        url;
-
-    avatarPreview.style.display =
-        "block";
-
-}
-
-
-settingsAvatar
-    .addEventListener(
-        "input",
-        updateAvatarPreview
-    );
-
-
-/* =========================
-   ENREGISTRER PROFIL
-========================= */
-
-$("saveSettings").onclick =
-    async () => {
-
-        const pseudo =
-            settingsPseudo.value.trim();
-
-        const avatar =
-            settingsAvatar.value.trim();
-
-
-        if (!pseudo) {
-
-            $("settingsMessage")
-                .textContent =
-                "❌ Le pseudo est obligatoire.";
-
-            return;
-
-        }
-
-
-        if (
-            pseudo.length < 2 ||
-            pseudo.length > 24
-        ) {
-
-            $("settingsMessage")
-                .textContent =
-                "❌ Le pseudo doit faire 2 à 24 caractères.";
-
-            return;
-
-        }
-
-
-        $("saveSettings")
-            .disabled = true;
-
-
-        try {
-
-            const {
-                error
-            } =
-                await supabase
-                    .from("profiles")
-                    .update({
-
-                        pseudo:
-                            pseudo,
-
-                        avatar_url:
-                            avatar || null
-
-                    })
-                    .eq(
-                        "id",
-                        user.id
-                    );
-
-
-            if (error)
-                throw error;
-
-
-            /*
-            Met à jour le profil local
-            */
-
-            profile.pseudo =
-                pseudo;
-
-            profile.avatar_url =
-                avatar || null;
-
-
-            /*
-            Met à jour l'affichage
-            */
-
-            $("me").innerHTML =
-
-                `<b>${escapeText(profile.pseudo)}</b>
-                <span style="color:#361FDB">
-                #${profile.network_id}
-                </span>`;
-
-
-            $("settingsMessage")
-                .textContent =
-                "✅ Profil enregistré !";
-
-
-            setTimeout(() => {
-
-                settingsPanel
-                    .classList
-                    .add("hidden");
-
-                $("settingsMessage")
-                    .textContent = "";
-
-            }, 800);
-
-
-        }
-        catch (e) {
-
-            $("settingsMessage")
-                .textContent =
-                "❌ " +
-                (
-                    e.message ||
-                    "Erreur"
-                );
-
-        }
-
-
-        $("saveSettings")
-            .disabled = false;
-
-    };
-
-
-/* =========================
-   MODE SOMBRE
-========================= */
-
-$("darkModeBtn").onclick =
-    () => {
-
-        document.body.style.background =
-            "#05050a";
-
-        document.body.style.color =
-            "white";
-
-        localStorage.setItem(
-            "cn_theme",
-            "dark"
-        );
-
-    };
-
-
-/* =========================
-   MODE CLAIR
-========================= */
-
-$("lightModeBtn").onclick =
-    () => {
-
-        document.body.style.background =
-            "#f2f2f7";
-
-        document.body.style.color =
-            "#111";
-
-        localStorage.setItem(
-            "cn_theme",
-            "light"
-        );
-
-    };
-
-
-/* =========================
-   CHARGER LE THÈME
-========================= */
-
-if (
-    localStorage.getItem("cn_theme")
-    === "light"
-) {
-
-    document.body.style.background =
-        "#f2f2f7";
-
-    document.body.style.color =
-        "#111";
-
-}
-/* =========================
-   LANCEMENT
-========================= */
-
+$("search").addEventListener("input", searchUsers);
 init();
-
 </script>
-
 </body>
 </html>
