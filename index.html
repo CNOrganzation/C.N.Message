@@ -1919,7 +1919,274 @@ $("search")
     );
 
 
+/* =========================
+   PARAMÈTRES
+========================= */
 
+const settingsPanel =
+    $("settingsPanel");
+
+const settingsPseudo =
+    $("settingsPseudo");
+
+const settingsAvatar =
+    $("settingsAvatar");
+
+const avatarPreview =
+    $("avatarPreview");
+
+
+/* OUVRIR */
+
+$("settingsBtn").onclick = () => {
+
+    settingsPseudo.value =
+        profile.pseudo;
+
+    settingsAvatar.value =
+        profile.avatar_url || "";
+
+    updateAvatarPreview();
+
+    settingsPanel
+        .classList
+        .remove("hidden");
+
+};
+
+
+/* FERMER */
+
+$("closeSettings").onclick = () => {
+
+    settingsPanel
+        .classList
+        .add("hidden");
+
+};
+
+
+/* APERÇU PDP */
+
+function updateAvatarPreview() {
+
+    const url =
+        settingsAvatar.value.trim();
+
+
+    if (!url) {
+
+        avatarPreview.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    avatarPreview.src =
+        url;
+
+    avatarPreview.style.display =
+        "block";
+
+}
+
+
+settingsAvatar
+    .addEventListener(
+        "input",
+        updateAvatarPreview
+    );
+
+
+/* =========================
+   ENREGISTRER PROFIL
+========================= */
+
+$("saveSettings").onclick =
+    async () => {
+
+        const pseudo =
+            settingsPseudo.value.trim();
+
+        const avatar =
+            settingsAvatar.value.trim();
+
+
+        if (!pseudo) {
+
+            $("settingsMessage")
+                .textContent =
+                "❌ Le pseudo est obligatoire.";
+
+            return;
+
+        }
+
+
+        if (
+            pseudo.length < 2 ||
+            pseudo.length > 24
+        ) {
+
+            $("settingsMessage")
+                .textContent =
+                "❌ Le pseudo doit faire 2 à 24 caractères.";
+
+            return;
+
+        }
+
+
+        $("saveSettings")
+            .disabled = true;
+
+
+        try {
+
+            const {
+                error
+            } =
+                await supabase
+                    .from("profiles")
+                    .update({
+
+                        pseudo:
+                            pseudo,
+
+                        avatar_url:
+                            avatar || null
+
+                    })
+                    .eq(
+                        "id",
+                        user.id
+                    );
+
+
+            if (error)
+                throw error;
+
+
+            /*
+            Met à jour le profil local
+            */
+
+            profile.pseudo =
+                pseudo;
+
+            profile.avatar_url =
+                avatar || null;
+
+
+            /*
+            Met à jour l'affichage
+            */
+
+            $("me").innerHTML =
+
+                `<b>${escapeText(profile.pseudo)}</b>
+                <span style="color:#361FDB">
+                #${profile.network_id}
+                </span>`;
+
+
+            $("settingsMessage")
+                .textContent =
+                "✅ Profil enregistré !";
+
+
+            setTimeout(() => {
+
+                settingsPanel
+                    .classList
+                    .add("hidden");
+
+                $("settingsMessage")
+                    .textContent = "";
+
+            }, 800);
+
+
+        }
+        catch (e) {
+
+            $("settingsMessage")
+                .textContent =
+                "❌ " +
+                (
+                    e.message ||
+                    "Erreur"
+                );
+
+        }
+
+
+        $("saveSettings")
+            .disabled = false;
+
+    };
+
+
+/* =========================
+   MODE SOMBRE
+========================= */
+
+$("darkModeBtn").onclick =
+    () => {
+
+        document.body.style.background =
+            "#05050a";
+
+        document.body.style.color =
+            "white";
+
+        localStorage.setItem(
+            "cn_theme",
+            "dark"
+        );
+
+    };
+
+
+/* =========================
+   MODE CLAIR
+========================= */
+
+$("lightModeBtn").onclick =
+    () => {
+
+        document.body.style.background =
+            "#f2f2f7";
+
+        document.body.style.color =
+            "#111";
+
+        localStorage.setItem(
+            "cn_theme",
+            "light"
+        );
+
+    };
+
+
+/* =========================
+   CHARGER LE THÈME
+========================= */
+
+if (
+    localStorage.getItem("cn_theme")
+    === "light"
+) {
+
+    document.body.style.background =
+        "#f2f2f7";
+
+    document.body.style.color =
+        "#111";
+
+}
 /* =========================
    LANCEMENT
 ========================= */
