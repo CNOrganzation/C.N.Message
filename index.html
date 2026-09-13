@@ -7,459 +7,465 @@
 <title>C.N. Message</title>
 
 <style>
-* {
-    box-sizing: border-box;
+*{box-sizing:border-box}
+
+html,body{
+    width:100%;
+    height:100%;
+    margin:0;
 }
 
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #05050a;
-    color: white;
-    min-height: 100vh;
+body{
+    font-family:Arial,sans-serif;
+    background:#05050a;
+    color:#fff;
+    overflow:hidden;
 }
 
-button,
-input {
-    font: inherit;
+button,input{
+    font:inherit;
 }
 
-button {
-    cursor: pointer;
+button{
+    cursor:pointer;
 }
 
 /* =========================
    APPLICATION
 ========================= */
 
-.app {
-    width: 100%;
-    max-width: 1000px;
-    margin: auto;
-    min-height: 100vh;
-    background: #090914;
+.app{
+    width:100%;
+    max-width:1000px;
+    height:100dvh;
+    margin:auto;
+    background:#090914;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
 }
 
 /* =========================
    BARRE DU HAUT
 ========================= */
 
-.top {
-    height: 64px;
-    padding: 12px 16px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    border-bottom: 1px solid #272052;
-    background: #0d0d1a;
-
-    position: sticky;
-    top: 0;
-    z-index: 5;
+.top{
+    height:64px;
+    min-height:64px;
+    padding:12px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:1px solid #272052;
+    background:#0d0d1a;
+    z-index:5;
 }
 
-.logo {
-    font-size: 20px;
-    font-weight: 800;
-
-    color: #00f0ff;
-
-    text-shadow:
-        0 0 8px #361FDB;
+.logo{
+    font-size:20px;
+    font-weight:800;
+    color:#00f0ff;
+    text-shadow:0 0 8px #361FDB;
 }
 
-.status {
-    font-size: 12px;
-    color: #8d8da8;
+.status{
+    font-size:12px;
+    color:#8d8da8;
 }
 
 /* =========================
-   STRUCTURE
+   STRUCTURE PRINCIPALE
 ========================= */
 
-.layout {
-    display: grid;
-    grid-template-columns: 290px 1fr;
-
-    min-height: calc(100vh - 64px);
+.layout{
+    flex:1;
+    min-height:0;
+    height:calc(100dvh - 64px);
+    display:grid;
+    grid-template-columns:290px 1fr;
+    overflow:hidden;
 }
 
 /* =========================
-   MENU GAUCHE
+   SIDEBAR
 ========================= */
 
-.sidebar {
-    border-right: 1px solid #272052;
-
-    background: #0b0b17;
-
-    padding: 12px;
+.sidebar{
+    min-height:0;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    border-right:1px solid #272052;
+    background:#0b0b17;
+    padding:12px;
 }
 
-.tabs {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 10px;
+.tabs{
+    display:flex;
+    gap:6px;
+    margin-bottom:10px;
+    flex-shrink:0;
 }
 
-.tab {
-    flex: 1;
-
-    padding: 9px 5px;
-
-    background: #121226;
-
-    border: 1px solid #30277d;
-    color: #aaa;
-
-    border-radius: 7px;
+.tab{
+    flex:1;
+    padding:9px 5px;
+    background:#121226;
+    border:1px solid #30277d;
+    color:#aaa;
+    border-radius:7px;
 }
 
-.tab.active {
-    background: #361FDB;
-    color: white;
+.tab.active{
+    background:#361FDB;
+    color:#fff;
 }
 
-.search {
-    width: 100%;
-
-    padding: 11px;
-
-    background: #05050a;
-    color: white;
-
-    border: 1px solid #30277d;
-    border-radius: 7px;
-
-    outline: none;
-
-    margin-bottom: 10px;
+.search{
+    width:100%;
+    padding:11px;
+    background:#05050a;
+    color:#fff;
+    border:1px solid #30277d;
+    border-radius:7px;
+    outline:none;
+    margin-bottom:10px;
+    flex-shrink:0;
 }
 
-.search:focus {
-    border-color: #00f0ff;
+.search:focus{
+    border-color:#00f0ff;
 }
 
-.list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+.list{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    flex:1;
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding-right:2px;
 }
 
-.item {
-    padding: 10px;
-
-    border: 1px solid transparent;
-    border-radius: 8px;
-
-    background: #101021;
-
-    text-align: left;
-
-    color: white;
+.item{
+    padding:10px;
+    border:1px solid transparent;
+    border-radius:8px;
+    background:#101021;
+    text-align:left;
+    color:#fff;
+    flex-shrink:0;
 }
 
 .item:hover,
-.item.active {
-    border-color: #361FDB;
-    background: #171734;
+.item.active{
+    border-color:#361FDB;
+    background:#171734;
 }
 
-.item-title {
-    font-weight: bold;
+.item-title{
+    font-weight:bold;
 }
 
-.item-sub {
-    font-size: 11px;
-    color: #8585a5;
-
-    margin-top: 3px;
-
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.item-sub{
+    font-size:11px;
+    color:#8585a5;
+    margin-top:3px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
 }
 
 /* =========================
-   CHAT
+   ZONE DE DISCUSSION
 ========================= */
 
-.chat {
-    display: flex;
-    flex-direction: column;
-
-    min-height: calc(100vh - 64px);
+.chat{
+    min-height:0;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
 }
 
-.chat-head {
-    padding: 14px 16px;
-
-    border-bottom: 1px solid #272052;
-
-    background: #0d0d1a;
+/* Nom de la personne / discussion
+   RESTE FIXE */
+.chat-head{
+    flex:0 0 auto;
+    padding:14px 16px;
+    border-bottom:1px solid #272052;
+    background:#0d0d1a;
+    z-index:2;
 }
 
-.chat-name {
-    font-weight: 800;
+.chat-name{
+    font-weight:800;
 }
 
-.chat-sub {
-    font-size: 11px;
-
-    color: #77779a;
-
-    margin-top: 3px;
-}
-
-.messages {
-    flex: 1;
-
-    overflow-y: auto;
-
-    padding: 16px;
-
-    background: #05050a;
+.chat-sub{
+    font-size:11px;
+    color:#77779a;
+    margin-top:3px;
 }
 
 /* =========================
    MESSAGES
 ========================= */
 
-.message {
-    max-width: 78%;
-
-    margin-bottom: 10px;
-
-    padding: 9px 11px;
-
-    border-radius: 10px;
-
-    background: #101021;
-
-    border-left: 3px solid #361FDB;
+/* SEULE CETTE ZONE SCROLLE */
+.messages{
+    flex:1;
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding:16px;
+    background:#05050a;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
 }
 
-.message.mine {
-    margin-left: auto;
-
-    background: #15113a;
-
-    border-left: 0;
-    border-right: 3px solid #00f0ff;
+.message{
+    max-width:78%;
+    margin-bottom:10px;
+    padding:9px 11px;
+    border-radius:10px;
+    background:#101021;
+    border-left:3px solid #361FDB;
 }
 
-.meta {
-    font-size: 11px;
-
-    color: #00f0ff;
-
-    margin-bottom: 3px;
+.message.mine{
+    margin-left:auto;
+    background:#15113a;
+    border-left:0;
+    border-right:3px solid #00f0ff;
 }
 
-.text {
-    white-space: pre-wrap;
-
-    word-break: break-word;
+.meta{
+    font-size:11px;
+    color:#00f0ff;
+    margin-bottom:3px;
 }
 
-.time {
-    font-size: 9px;
+.text{
+    white-space:pre-wrap;
+    word-break:break-word;
+}
 
-    color: #666680;
-
-    text-align: right;
-
-    margin-top: 4px;
+.time{
+    font-size:9px;
+    color:#666680;
+    text-align:right;
+    margin-top:4px;
 }
 
 /* =========================
-   ZONE D'ENVOI
+   BARRE D'ÉCRITURE
 ========================= */
 
-.composer {
-    padding: 12px;
-
-    border-top: 1px solid #272052;
-
-    background: #0d0d1a;
-
-    display: flex;
-
-    gap: 7px;
+/* RESTE FIXE EN BAS */
+.composer{
+    flex:0 0 auto;
+    padding:12px;
+    padding-bottom:max(12px, env(safe-area-inset-bottom));
+    border-top:1px solid #272052;
+    background:#0d0d1a;
+    display:flex;
+    gap:7px;
+    z-index:2;
 }
 
-.composer input {
-    flex: 1;
-
-    min-width: 0;
-
-    padding: 12px;
-
-    background: #05050a;
-
-    color: white;
-
-    border: 1px solid #30277d;
-
-    border-radius: 8px;
-
-    outline: none;
+.composer input{
+    flex:1;
+    min-width:0;
+    padding:12px;
+    background:#05050a;
+    color:#fff;
+    border:1px solid #30277d;
+    border-radius:8px;
+    outline:none;
 }
 
-.composer input:focus {
-    border-color: #00f0ff;
-}
-
-.send {
-    padding: 12px 15px;
-
-    background: #361FDB;
-
-    border: 0;
-
-    color: white;
-
-    border-radius: 8px;
-
-    font-weight: bold;
+.send{
+    padding:12px 15px;
+    background:#361FDB;
+    border:0;
+    color:#fff;
+    border-radius:8px;
+    font-weight:bold;
 }
 
 /* =========================
    CONNEXION
 ========================= */
 
-.login {
-    min-height: 100vh;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    padding: 20px;
+.login{
+    height:100dvh;
+    min-height:100dvh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    overflow:auto;
 }
 
-.loginbox {
-    width: 100%;
-
-    max-width: 500px;
-
-    background: #0d0d1a;
-
-    padding: 24px;
-
-    border-radius: 14px;
-
-    border: 2px solid #361FDB;
-
-    box-shadow:
-        0 0 20px rgba(54,31,219,.25);
+.loginbox{
+    width:100%;
+    max-width:500px;
+    background:#0d0d1a;
+    padding:24px;
+    border-radius:14px;
+    border:2px solid #361FDB;
+    box-shadow:0 0 20px rgba(54,31,219,.25);
 }
 
-.loginbox h1 {
-    color: #00f0ff;
+.loginbox h1{
+    color:#00f0ff;
 }
 
-.loginbox p {
-    color: #aaa;
+.loginbox p{
+    color:#aaa;
 }
 
-.loginbox input {
-    width: 100%;
-
-    padding: 13px;
-
-    background: #05050a;
-
-    color: white;
-
-    border: 1px solid #361FDB;
-
-    border-radius: 7px;
-
-    margin: 8px 0 12px;
-
-    outline: none;
+.loginbox input{
+    width:100%;
+    padding:13px;
+    background:#05050a;
+    color:#fff;
+    border:1px solid #361FDB;
+    border-radius:7px;
+    margin:8px 0 12px;
+    outline:none;
 }
 
-.primary {
-    width: 100%;
-
-    padding: 13px;
-
-    background: #002FA7;
-
-    color: white;
-
-    border: 1px solid #00f0ff;
-
-    border-radius: 7px;
-
-    font-weight: bold;
+.primary{
+    width:100%;
+    padding:13px;
+    background:#002FA7;
+    color:#fff;
+    border:1px solid #00f0ff;
+    border-radius:7px;
+    font-weight:bold;
 }
 
-.me {
-    padding: 10px;
+/* =========================
+   AUTRES ÉLÉMENTS
+========================= */
 
-    margin-bottom: 10px;
-
-    background: #101021;
-
-    border-radius: 8px;
-
-    border: 1px solid #29245a;
-
-    font-size: 12px;
+.me{
+    padding:10px;
+    margin-bottom:10px;
+    background:#101021;
+    border-radius:8px;
+    border:1px solid #29245a;
+    font-size:12px;
+    flex-shrink:0;
 }
 
-.empty {
-    color: #77779a;
-
-    text-align: center;
-
-    padding: 30px 10px;
+.empty{
+    color:#77779a;
+    text-align:center;
+    padding:30px 10px;
 }
 
-.error {
-    color: #ff7373;
-
-    font-size: 13px;
-
-    margin-top: 8px;
+.error{
+    color:#ff7373;
+    font-size:13px;
+    margin-top:8px;
 }
 
-.hidden {
-    display: none !important;
+.hidden{
+    display:none!important;
 }
 
 /* =========================
    MOBILE
 ========================= */
 
-@media(max-width:700px) {
+@media(max-width:700px){
 
-    .layout {
-        grid-template-columns: 1fr;
+    .layout{
+        display:flex;
+        flex-direction:column;
+        height:calc(100dvh - 64px);
+        min-height:0;
     }
 
-    .sidebar {
-        border-right: 0;
-
-        border-bottom: 1px solid #272052;
+    /*
+       La partie Mondial/Privé reste en haut.
+       Seule la liste des utilisateurs défile.
+    */
+    .sidebar{
+        flex:0 0 32dvh;
+        height:32dvh;
+        min-height:180px;
+        max-height:280px;
+        border-right:0;
+        border-bottom:1px solid #272052;
     }
 
-    .chat {
-        min-height: 65vh;
+    .chat{
+        flex:1;
+        min-height:0;
+        height:auto;
     }
 
-    .messages {
-        min-height: 300px;
+    .chat-head{
+        flex-shrink:0;
     }
 
-    .item {
-        padding: 8px;
+    .messages{
+        flex:1;
+        min-height:0;
+    }
+
+    .composer{
+        flex-shrink:0;
+    }
+
+    .item{
+        padding:8px;
+    }
+}
+
+/* =========================
+   PETITS ÉCRANS
+========================= */
+
+@media(max-width:380px){
+
+    .top{
+        padding:10px 12px;
+    }
+
+    .logo{
+        font-size:17px;
+    }
+
+    .status{
+        font-size:10px;
+    }
+
+    .sidebar{
+        flex-basis:30dvh;
+        height:30dvh;
+        min-height:160px;
+    }
+
+    .messages{
+        padding:10px;
+    }
+
+    .message{
+        max-width:88%;
+    }
+
+    .composer{
+        padding:8px;
+    }
+
+    .send{
+        padding:10px 12px;
     }
 }
 </style>
