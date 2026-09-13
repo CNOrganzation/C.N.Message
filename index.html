@@ -1086,7 +1086,12 @@ window.addEventListener('resize', () => {
         sidebarEl.style.display = '';
     }
 });
-
+// démarrer l'app
+init().catch(err => {
+  console.error('init error', err);
+  const el = document.getElementById('loginError');
+  if (el) el.textContent = err?.message || String(err);
+});
 </script>
 </body>
 </html>
