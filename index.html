@@ -387,6 +387,40 @@ button {
     font-weight: bold;
 }
 
+
+.attachment {
+    padding: 12px 13px;
+    background: #121226;
+    border: 1px solid #361FDB;
+    color: white;
+    border-radius: 8px;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.attachment:hover {
+    border-color: #00f0ff;
+}
+
+.attachment-name {
+    font-size: 10px;
+    color: #77779a;
+    margin-top: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.message-image {
+    display: block;
+    max-width: 100%;
+    max-height: 320px;
+    margin-top: 8px;
+    border-radius: 8px;
+    border: 1px solid #30277d;
+    object-fit: contain;
+}
+
 /* =========================
    CONNEXION
 ========================= */
@@ -760,12 +794,30 @@ button {
 
             <div class="composer">
 
+                <button
+                    id="attachmentBtn"
+                    class="attachment"
+                    type="button"
+                    title="Ajouter une photo"
+                >📎</button>
+
                 <input
-                    type="text"
-                    id="messageInput"
-                    maxlength="2000"
-                    placeholder="Écris ton message…"
+                    type="file"
+                    id="attachmentInput"
+                    accept="image/*"
+                    style="display:none;"
                 >
+
+                <div style="flex:1;min-width:0;">
+                    <input
+                        type="text"
+                        id="messageInput"
+                        maxlength="2000"
+                        placeholder="Écris ton message…"
+                        style="width:100%;"
+                    >
+                    <div id="attachmentName" class="attachment-name"></div>
+                </div>
 
                 <button
                     id="sendBtn"
@@ -1435,14 +1487,42 @@ function addMessage(row) {
 
 
     div.querySelector(".text")
-        .textContent = row.body;
+        .textContent = row.body || "";
+
+
+    if (row.attachment_url) {
+
+        const image =
+            document.createElement("img");
+
+        image.className =
+            "message-image";
+
+        image.src =
+            row.attachment_url;
+
+        image.alt =
+            "Photo jointe";
+
+        image.loading =
+            "lazy";
+
+        image.onerror = () => {
+            image.remove();
+        };
+
+        div.insertBefore(
+            image,
+            div.querySelector(".time")
+        );
+
+    }
 
 
     $("messages")
         .appendChild(div);
 
 }
-
 
 /* =========================
    OUVRIR MONDIAL
@@ -1782,6 +1862,12 @@ async function openDM(other) {
             created_at:
                 row.created_at,
 
+            attachment_url:
+                row.attachment_url,
+
+            attachment_type:
+                row.attachment_type,
+
             sender: {
 
                 pseudo:
@@ -1900,16 +1986,96 @@ async function sendMessage() {
             .value
             .trim();
 
+    const file =
+        $("attachmentInput")
+            .files[0];
 
-    if (!body)
+
+    if (!body && !file)
         return;
 
 
     $("sendBtn")
         .disabled = true;
 
+    $("attachmentBtn")
+        .disabled = true;
+
 
     try {
+
+        let attachmentUrl = null;
+        let attachmentType = null;
+
+
+        /*
+        ==========================================
+        UPLOAD DE LA PHOTO
+        ==========================================
+        */
+
+        if (file) {
+
+            if (!file.type.startsWith("image/")) {
+                throw new Error(
+                    "Pour le moment, seules les photos sont acceptées."
+                );
+            }
+
+
+            if (file.size > 10 * 1024 * 1024) {
+                throw new Error(
+                    "La photo est trop lourde. Maximum : 10 Mo."
+                );
+            }
+
+
+            const extension =
+                file.name.split(".").pop() || "jpg";
+
+            const filePath =
+                user.id +
+                "/" +
+                crypto.randomUUID() +
+                "." +
+                extension;
+
+
+            const {
+                error: uploadError
+            } =
+                await supabase.storage
+                    .from("attachments")
+                    .upload(
+                        filePath,
+                        file,
+                        {
+                            contentType: file.type,
+                            upsert: false
+                        }
+                    );
+
+
+            if (uploadError)
+                throw uploadError;
+
+
+            const {
+                data: publicData
+            } =
+                supabase.storage
+                    .from("attachments")
+                    .getPublicUrl(filePath);
+
+
+            attachmentUrl =
+                publicData.publicUrl;
+
+            attachmentType =
+                file.type;
+
+        }
+
 
         /*
         ==============================
@@ -1931,7 +2097,13 @@ async function sendMessage() {
                             user.id,
 
                         body:
-                            body
+                            body,
+
+                        attachment_url:
+                            attachmentUrl,
+
+                        attachment_type:
+                            attachmentType
                     });
 
 
@@ -1963,7 +2135,13 @@ async function sendMessage() {
                             currentUser.id,
 
                         body:
-                            body
+                            body,
+
+                        attachment_url:
+                            attachmentUrl,
+
+                        attachment_type:
+                            attachmentType
 
                     });
 
@@ -1977,6 +2155,12 @@ async function sendMessage() {
         $("messageInput")
             .value = "";
 
+        $("attachmentInput")
+            .value = "";
+
+        $("attachmentName")
+            .textContent = "";
+
     }
     catch (e) {
 
@@ -1988,8 +2172,10 @@ async function sendMessage() {
     $("sendBtn")
         .disabled = false;
 
-}
+    $("attachmentBtn")
+        .disabled = false;
 
+}
 
 /* =========================
    AFFICHER ERREUR
@@ -2039,6 +2225,37 @@ $("menuBtn")
 $("sidebarClose")
     .onclick =
     closeSidebar;
+
+
+/* =========================
+   PIÈCES JOINTES
+========================= */
+
+$("attachmentBtn")
+    .onclick = () => {
+
+        $("attachmentInput")
+            .click();
+
+    };
+
+
+$("attachmentInput")
+    .addEventListener(
+        "change",
+        () => {
+
+            const file =
+                $("attachmentInput").files[0];
+
+            $("attachmentName")
+                .textContent =
+                file
+                    ? "📷 " + file.name
+                    : "";
+
+        }
+    );
 
 
 /* =========================
