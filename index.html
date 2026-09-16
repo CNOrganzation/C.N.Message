@@ -1842,7 +1842,12 @@ async function searchUsers() {
 
 
         b.onclick =
-            () => openDM(p);
+            () => openDM({
+    id: p.user_id,
+    pseudo: p.pseudo,
+    network_id: p.network_id,
+    avatar_url: p.avatar_url
+});
 
 
         $("list")
