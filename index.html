@@ -1872,11 +1872,69 @@ async function searchUsers() {
 
 async function openDM(other) {
 
+    /* =========================
+       SÉCURISER L'UTILISATEUR
+    ========================= */
+
+    const otherId =
+        other.id ||
+        other.user_id ||
+        other.other_user_id ||
+        other.receiver_id;
+
+    if (!otherId) {
+
+        showError({
+            message:
+                "Impossible d'ouvrir cette discussion : identifiant du destinataire introuvable."
+        });
+
+        return;
+
+    }
+
+
+    /* =========================
+       RÉCUPÉRER LE PROFIL COMPLET
+    ========================= */
+
+    let otherProfile = other;
+
+    if (!otherProfile.id) {
+
+        const {
+            data,
+            error
+        } =
+            await supabase
+                .from("profiles")
+                .select(
+                    "id,pseudo,network_id,avatar_url"
+                )
+                .eq(
+                    "id",
+                    otherId
+                )
+                .single();
+
+        if (error) {
+
+            showError(error);
+
+            return;
+
+        }
+
+        otherProfile = data;
+
+    }
+
+
     currentMode =
         "dm";
 
     currentUser =
-        other;
+        otherProfile;
 
 
     $("worldTab")
@@ -1890,15 +1948,15 @@ async function openDM(other) {
 
 
     $("chatName").textContent =
-        `💬 ${other.pseudo}`;
+        `💬 ${otherProfile.pseudo}`;
 
 
     $("chatSub").textContent =
-        `${other.pseudo} #${other.network_id}`;
+        `${otherProfile.pseudo} #${otherProfile.network_id}`;
 
 
     setChatAvatar(
-        other.avatar_url
+        otherProfile.avatar_url
     );
 
 
@@ -1915,11 +1973,9 @@ async function openDM(other) {
     }
 
 
-    /*
-    ==========================================
-    CHARGER L'HISTORIQUE DU MP
-    ==========================================
-    */
+    /* =========================
+       CHARGER L'HISTORIQUE
+    ========================= */
 
     const {
         data,
@@ -1930,7 +1986,7 @@ async function openDM(other) {
                 "get_private_messages",
                 {
                     other_user_id:
-                        other.id
+                        otherProfile.id
                 }
             );
 
@@ -1943,16 +1999,6 @@ async function openDM(other) {
 
     }
 
-
-    /*
-    IMPORTANT :
-
-    Le RPC renvoie les informations de
-    l'expéditeur directement.
-
-    On transforme ici le résultat pour
-    utiliser le même système d'affichage.
-    */
 
     const formatted =
         (data || []).map(row => ({
@@ -1971,12 +2017,6 @@ async function openDM(other) {
 
             created_at:
                 row.created_at,
-
-            attachment_url:
-                row.attachment_url,
-
-            attachment_type:
-                row.attachment_type,
 
             sender: {
 
@@ -1997,18 +2037,16 @@ async function openDM(other) {
     setMessages(formatted);
 
 
-    /*
-    ==========================================
-    TEMPS RÉEL DES MP
-    ==========================================
-    */
+    /* =========================
+       TEMPS RÉEL
+    ========================= */
 
     realtimeChannel =
 
         supabase
             .channel(
                 "dm-" +
-                [user.id, other.id]
+                [user.id, otherProfile.id]
                     .sort()
                     .join("-")
             )
@@ -2027,22 +2065,17 @@ async function openDM(other) {
                         payload.new;
 
 
-                    /*
-                    On ne garde que les messages
-                    entre les deux personnes.
-                    */
-
                     if (
 
                         (
                             r.sender_id === user.id &&
-                            r.receiver_id === other.id
+                            r.receiver_id === otherProfile.id
                         )
 
                         ||
 
                         (
-                            r.sender_id === other.id &&
+                            r.sender_id === otherProfile.id &&
                             r.receiver_id === user.id
                         )
 
@@ -2083,7 +2116,6 @@ async function openDM(other) {
             .subscribe();
 
 }
-
 
 /* =========================
    ENVOYER MESSAGE
