@@ -1078,24 +1078,17 @@ import {
 } from "https://esm.sh/@supabase/supabase-js@2";
 
 
-/*
-==========================================================
-IMPORTANT
-
-TU REMPLACERAS CES DEUX VALEURS APRÈS AVOIR CRÉÉ SUPABASE.
-
-==========================================================
-*/
+/* =========================
+   SUPABASE
+========================= */
 
 const SUPABASE_URL = "https://kmeuxlqtwsgauajmwsav.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_bUgTtZXn7zfY3_y8fdL5zg_u675RwY1";
 
-
-const supabase =
-    createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
-    );
+const supabase = createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
 
 
 /* =========================
@@ -1103,13 +1096,9 @@ const supabase =
 ========================= */
 
 let user = null;
-
 let profile = null;
-
 let currentMode = "world";
-
 let currentUser = null;
-
 let realtimeChannel = null;
 
 const DEFAULT_AVATAR =
@@ -1120,8 +1109,7 @@ const DEFAULT_AVATAR =
    RACCOURCI DOM
 ========================= */
 
-const $ = id =>
-    document.getElementById(id);
+const $ = id => document.getElementById(id);
 
 
 /* =========================
@@ -1129,9 +1117,7 @@ const $ = id =>
 ========================= */
 
 function escapeText(value) {
-
     return String(value ?? "");
-
 }
 
 
@@ -1142,33 +1128,23 @@ function escapeText(value) {
 async function ensureAuth() {
 
     let {
-        data: {
-            session
-        }
-    } =
-        await supabase.auth.getSession();
-
+        data: { session }
+    } = await supabase.auth.getSession();
 
     if (!session) {
 
         const {
             data,
             error
-        } =
-            await supabase.auth.signInAnonymously();
-
+        } = await supabase.auth.signInAnonymously();
 
         if (error)
             throw error;
 
-
         session = data.session;
-
     }
 
-
     user = session.user;
-
 }
 
 
@@ -1181,28 +1157,48 @@ async function loadProfile() {
     const {
         data,
         error
-    } =
-        await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", user.id)
-            .single();
-
+    } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
 
     if (error)
         throw error;
 
-
     profile = data;
 
+    renderMyProfile();
+}
 
-    $("me").innerHTML =
 
-        `<b>${escapeText(profile.pseudo)}</b>
-        <span style="color:#361FDB">
-        #${profile.network_id}
-        </span>`;
+function renderMyProfile() {
 
+    if (!profile)
+        return;
+
+    $("me").innerHTML = `
+        <div style="display:flex;align-items:center;gap:9px;">
+            <img
+                src="${profile.avatar_url || DEFAULT_AVATAR}"
+                style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid #361FDB;flex-shrink:0;"
+                alt=""
+            >
+            <div>
+                <b>${escapeText(profile.pseudo)}</b>
+                <span style="color:#361FDB">
+                    #${profile.network_id}
+                </span>
+            </div>
+        </div>`;
+
+    const avatar = $("me").querySelector("img");
+    if (avatar) {
+        avatar.onerror = () => {
+            avatar.onerror = null;
+            avatar.src = DEFAULT_AVATAR;
+        };
+    }
 }
 
 
@@ -1214,185 +1210,95 @@ async function init() {
 
     try {
 
-        if (
-            SUPABASE_URL.includes("COLLE_")
-        ) {
-
-            throw new Error(
-                "Configure d'abord Supabase dans le fichier index.html."
-            );
-
-        }
-
-
         await ensureAuth();
-
         await loadProfile();
 
-
-        $("login")
-            .classList
-            .add("hidden");
-
-
-        $("app")
-            .classList
-            .remove("hidden");
-
-
-        $("status").textContent =
-            "   ● En ligne   ";
-
+        $("login").classList.add("hidden");
+        $("app").classList.remove("hidden");
+        $("status").textContent = "   ● En ligne   ";
 
         await openWorld();
-
 
     }
     catch (e) {
 
         $("loginError").textContent =
-            e.message ||
-            "Erreur de connexion.";
-
+            e.message || "Erreur de connexion.";
     }
-
 }
 
 
 /* =========================
-   CRÉER COMPTE
+   CRÉER PROFIL
 ========================= */
 
 async function createProfile() {
 
-    const pseudo =
-        $("pseudo")
-            .value
-            .trim();
-
+    const pseudo = $("pseudo").value.trim();
 
     if (!pseudo) {
-
-        $("loginError").textContent =
-            "Pseudo obligatoire.";
-
+        $("loginError").textContent = "Pseudo obligatoire.";
         return;
-
     }
 
-
-    if (
-        !/^[A-Za-zÀ-ÿ0-9_ -]{2,24}$/
-            .test(pseudo)
-    ) {
-
+    if (!/^[A-Za-zÀ-ÿ0-9_ -]{2,24}$/.test(pseudo)) {
         $("loginError").textContent =
             "Pseudo : 2 à 24 caractères, sans symbole spécial.";
-
         return;
-
     }
 
-
     $("createBtn").disabled = true;
-
     $("loginError").textContent = "";
-
 
     try {
 
         let {
-            data: {
-                session
-            }
-        } =
-            await supabase
-                .auth
-                .getSession();
-
+            data: { session }
+        } = await supabase.auth.getSession();
 
         if (!session) {
 
             const {
                 data,
                 error
-            } =
-                await supabase
-                    .auth
-                    .signInAnonymously();
-
+            } = await supabase.auth.signInAnonymously();
 
             if (error)
                 throw error;
 
-
-            session =
-                data.session;
-
+            session = data.session;
         }
 
-
-        user =
-            session.user;
-
+        user = session.user;
 
         const {
             data,
             error
-        } =
-            await supabase
-                .rpc(
-                    "create_profile",
-                    {
-                        p_pseudo: pseudo
-                    }
-                );
-
+        } = await supabase.rpc(
+            "create_profile",
+            { p_pseudo: pseudo }
+        );
 
         if (error)
             throw error;
 
-
         profile = data;
 
+        $("login").classList.add("hidden");
+        $("app").classList.remove("hidden");
+        $("status").textContent = "● En ligne";
 
-        $("login")
-            .classList
-            .add("hidden");
-
-
-        $("app")
-            .classList
-            .remove("hidden");
-
-
-        $("me").innerHTML =
-
-            `<b>${escapeText(profile.pseudo)}</b>
-            <span style="color:#361FDB">
-            #${profile.network_id}
-            </span>`;
-
-
-        $("status").textContent =
-            "● En ligne";
-
-
+        renderMyProfile();
         await openWorld();
 
     }
     catch (e) {
 
         $("loginError").textContent =
-            e.message ||
-            "Impossible de créer le profil.";
+            e.message || "Impossible de créer le profil.";
 
-
-        $("createBtn").disabled =
-            false;
-
+        $("createBtn").disabled = false;
     }
-
 }
 
 
@@ -1402,30 +1308,16 @@ async function createProfile() {
 
 function setChatAvatar(url) {
 
-    const avatar =
-        $("chatAvatar");
+    const avatar = $("chatAvatar");
+    const finalUrl = url || DEFAULT_AVATAR;
 
-
-    const finalUrl =
-        url || DEFAULT_AVATAR;
-
-
-    avatar.src =
-        finalUrl;
-
-    avatar.style.display =
-        "block";
-
+    avatar.src = finalUrl;
+    avatar.style.display = "block";
 
     avatar.onerror = () => {
-
         avatar.onerror = null;
-
-        avatar.src =
-            DEFAULT_AVATAR;
-
+        avatar.src = DEFAULT_AVATAR;
     };
-
 }
 
 
@@ -1437,27 +1329,16 @@ function setMessages(rows) {
 
     $("messages").innerHTML = "";
 
-
     if (!rows?.length) {
-
         $("messages").innerHTML =
             '<div class="empty">Aucun message pour le moment.</div>';
-
         return;
-
     }
 
-
-    for (const row of rows) {
-
+    for (const row of rows)
         addMessage(row);
 
-    }
-
-
-    $("messages").scrollTop =
-        $("messages").scrollHeight;
-
+    $("messages").scrollTop = $("messages").scrollHeight;
 }
 
 
@@ -1467,40 +1348,25 @@ function setMessages(rows) {
 
 function addMessage(row) {
 
-    const empty =
-        $("messages")
-            .querySelector(".empty");
-
+    const empty = $("messages").querySelector(".empty");
 
     if (empty)
         empty.remove();
 
-
-    const div =
-        document.createElement("div");
-
+    const div = document.createElement("div");
 
     div.className =
         "message" +
-        (
-            row.sender_id === user.id
-                ? " mine"
-                : ""
-        );
+        (row.sender_id === user.id ? " mine" : "");
 
-
-    div.innerHTML =
-
-        `<div class="meta">
+    div.innerHTML = `
+        <div class="meta">
             ${escapeText(
                 row.sender?.pseudo ||
-                (
-                    row.sender_id === user.id
-                        ? profile.pseudo
-                        : "Utilisateur"
-                )
+                (row.sender_id === user.id
+                    ? profile.pseudo
+                    : "Utilisateur")
             )}
-
             <span style="color:#55557a">
                 #${row.sender?.network_id || ""}
             </span>
@@ -1509,9 +1375,7 @@ function addMessage(row) {
         <div class="text"></div>
 
         <div class="time">
-            ${new Date(
-                row.created_at
-            ).toLocaleTimeString(
+            ${new Date(row.created_at).toLocaleTimeString(
                 "fr-FR",
                 {
                     hour: "2-digit",
@@ -1520,27 +1384,16 @@ function addMessage(row) {
             )}
         </div>`;
 
-
-    div.querySelector(".text")
-        .textContent = row.body || "";
-
+    div.querySelector(".text").textContent = row.body || "";
 
     if (row.attachment_url) {
 
-        const image =
-            document.createElement("img");
+        const image = document.createElement("img");
 
-        image.className =
-            "message-image";
-
-        image.src =
-            row.attachment_url;
-
-        image.alt =
-            "Photo jointe";
-
-        image.loading =
-            "lazy";
+        image.className = "message-image";
+        image.src = row.attachment_url;
+        image.alt = "Photo jointe";
+        image.loading = "lazy";
 
         image.onerror = () => {
             image.remove();
@@ -1550,14 +1403,11 @@ function addMessage(row) {
             image,
             div.querySelector(".time")
         );
-
     }
 
-
-    $("messages")
-        .appendChild(div);
-
+    $("messages").appendChild(div);
 }
+
 
 /* =========================
    OUVRIR MONDIAL
@@ -1565,88 +1415,44 @@ function addMessage(row) {
 
 async function openWorld() {
 
-    currentMode =
-        "world";
+    currentMode = "world";
+    currentUser = null;
 
-    currentUser =
-        null;
+    $("worldTab").classList.add("active");
+    $("dmTab").classList.remove("active");
 
-
-    $("worldTab")
-        .classList
-        .add("active");
-
-
-    $("dmTab")
-        .classList
-        .remove("active");
-
-
-    $("chatName").textContent =
-        "🌍 Mondial";
-
-
-    $("chatSub").textContent =
-        "Tout le réseau";
-
+    $("chatName").textContent = "🌍 Mondial";
+    $("chatSub").textContent = "Tout le réseau";
 
     setChatAvatar(null);
-
-
     closeSidebar();
 
-
     if (realtimeChannel) {
-
-        await supabase
-            .removeChannel(
-                realtimeChannel
-            );
-
+        await supabase.removeChannel(realtimeChannel);
+        realtimeChannel = null;
     }
-
 
     const {
         data,
         error
-    } =
-        await supabase
-            .from("world_messages")
-            .select(
-                "*,sender:profiles!world_messages_sender_id_fkey(pseudo,network_id,avatar_url)"
-            )
-            .order(
-                "created_at",
-                {
-                    ascending: true
-                }
-            )
-            .limit(200);
-
+    } = await supabase
+        .from("world_messages")
+        .select(
+            "*,sender:profiles!world_messages_sender_id_fkey(pseudo,network_id,avatar_url)"
+        )
+        .order("created_at", { ascending: true })
+        .limit(200);
 
     if (error) {
-
         showError(error);
-
         return;
-
     }
-
 
     setMessages(data);
 
-
-    /*
-    ==============================================
-    TEMPS RÉEL DU MONDIAL
-    ==============================================
-    */
-
     realtimeChannel =
-
         supabase
             .channel("world-live")
-
             .on(
                 "postgres_changes",
                 {
@@ -1654,101 +1460,164 @@ async function openWorld() {
                     schema: "public",
                     table: "world_messages"
                 },
-
                 async payload => {
 
                     const {
                         data
-                    } =
-                        await supabase
-                            .from("world_messages")
-                            .select(
-                                "*,sender:profiles!world_messages_sender_id_fkey(pseudo,network_id,avatar_url)"
-                            )
-                            .eq(
-                                "id",
-                                payload.new.id
-                            )
-                            .single();
-
+                    } = await supabase
+                        .from("world_messages")
+                        .select(
+                            "*,sender:profiles!world_messages_sender_id_fkey(pseudo,network_id,avatar_url)"
+                        )
+                        .eq("id", payload.new.id)
+                        .single();
 
                     if (data) {
-
                         addMessage(data);
-
-                        $("messages")
-                            .scrollTop =
-                            $("messages")
-                                .scrollHeight;
-
+                        $("messages").scrollTop =
+                            $("messages").scrollHeight;
                     }
-
                 }
-
             )
-
             .subscribe();
-
 }
 
 
 /* =========================
    DISCUSSIONS RÉCENTES
+
+   IMPORTANT :
+   On ne dépend plus du RPC get_private_conversations.
+   On récupère directement les messages privés puis
+   on construit la liste des discussions.
 ========================= */
 
 async function loadConversations() {
 
-    const { data, error } =
-        await supabase
-            .rpc("get_private_conversations");
+    const {
+        data: messages,
+        error
+    } = await supabase
+        .from("private_messages")
+        .select(
+            "id,sender_id,receiver_id,body,created_at,attachment_url,attachment_type"
+        )
+        .or(
+            `sender_id.eq.${user.id},receiver_id.eq.${user.id}`
+        )
+        .order("created_at", { ascending: false })
+        .limit(500);
 
     if (error) {
-        showError(error);
+        $("list").innerHTML =
+            '<div class="empty">Impossible de charger les discussions.</div>';
         return;
     }
 
-    const list = $("list");
-    list.innerHTML = "";
+    const conversations = new Map();
 
-    for (const c of (data || [])) {
+    for (const message of (messages || [])) {
+
+        const otherId =
+            message.sender_id === user.id
+                ? message.receiver_id
+                : message.sender_id;
+
+        if (!otherId)
+            continue;
+
+        if (!conversations.has(otherId))
+            conversations.set(otherId, message);
+    }
+
+    $("list").innerHTML = "";
+
+    if (!conversations.size) {
+        $("list").innerHTML =
+            '<div class="empty">Aucune discussion récente.</div>';
+        return;
+    }
+
+    const ids = [...conversations.keys()];
+
+    const {
+        data: profiles,
+        error: profileError
+    } = await supabase
+        .from("profiles")
+        .select("id,pseudo,network_id,avatar_url")
+        .in("id", ids);
+
+    if (profileError) {
+        $("list").innerHTML =
+            '<div class="empty">Impossible de charger les profils.</div>';
+        return;
+    }
+
+    const profileMap = new Map(
+        (profiles || []).map(p => [p.id, p])
+    );
+
+    for (const [otherId, lastMessage] of conversations) {
+
+        const other = profileMap.get(otherId);
+
+        if (!other)
+            continue;
 
         const b = document.createElement("button");
         b.className = "item";
 
-        b.innerHTML =
-            `<div class="conversation-item">
+        const preview =
+            lastMessage.body
+                ? lastMessage.body
+                : (lastMessage.attachment_url ? "📷 Photo" : "");
+
+        b.innerHTML = `
+            <div class="conversation-item">
                 <img
                     class="conversation-avatar"
-                    src="${c.avatar_url || DEFAULT_AVATAR}"
+                    src="${other.avatar_url || DEFAULT_AVATAR}"
                     alt=""
                 >
+
                 <div class="conversation-info">
                     <div class="conversation-top">
                         <div class="item-title">
-                            ${escapeText(c.pseudo)}
+                            ${escapeText(other.pseudo)}
                         </div>
+
                         <div class="conversation-time">
-                            ${c.last_message_at
-                                ? new Date(c.last_message_at).toLocaleDateString("fr-FR", {day:"2-digit", month:"2-digit"})
+                            ${lastMessage.created_at
+                                ? new Date(lastMessage.created_at)
+                                    .toLocaleDateString(
+                                        "fr-FR",
+                                        {
+                                            day: "2-digit",
+                                            month: "2-digit"
+                                        }
+                                    )
                                 : ""}
                         </div>
                     </div>
+
                     <div class="item-sub">
-                        ${escapeText(c.last_message || "📷 Photo")}
+                        ${escapeText(preview)}
                     </div>
                 </div>
             </div>`;
 
-        const avatar = b.querySelector(".conversation-avatar");
-        avatar.onerror = () => avatar.src = DEFAULT_AVATAR;
+        const avatar =
+            b.querySelector(".conversation-avatar");
 
-        b.onclick = () => openDM(c);
-        list.appendChild(b);
-    }
+        avatar.onerror = () => {
+            avatar.onerror = null;
+            avatar.src = DEFAULT_AVATAR;
+        };
 
-    if (!data || !data.length) {
-        list.innerHTML =
-            '<div class="empty">Aucune discussion récente.</div>';
+        b.onclick = () => openDM(other);
+
+        $("list").appendChild(b);
     }
 }
 
@@ -1759,290 +1628,189 @@ async function loadConversations() {
 
 async function searchUsers() {
 
-    const q =
-        $("search")
-            .value
-            .trim();
-
+    const q = $("search").value.trim();
 
     $("list").innerHTML = "";
 
-
-    if (
-        currentMode === "dm" &&
-        !q
-    ) {
+    if (currentMode === "dm" && !q) {
         await loadConversations();
         return;
     }
 
-
-    if (
-        currentMode === "world"
-    ) {
+    if (currentMode === "world") {
 
         if (!q) {
-
             $("list").innerHTML =
                 '<div class="empty">Passe en 💬 Privé pour rechercher un utilisateur.</div>';
-
             return;
-
         }
-
     }
-
 
     if (!q)
         return;
 
+    let query = supabase
+        .from("profiles")
+        .select("id,pseudo,network_id,avatar_url")
+        .neq("id", user.id)
+        .limit(20);
+
+    if (/^\d+$/.test(q)) {
+        query = query.eq("network_id", Number(q));
+    }
+    else {
+        query = query.ilike("pseudo", `%${q}%`);
+    }
 
     const {
         data,
         error
-    } =
-        await supabase
-            .from("profiles")
-            .select(
-                "id,pseudo,network_id,avatar_url"
-            )
-            .neq(
-                "id",
-                user.id
-            )
-            .or(
-                `pseudo.ilike.%${q}%,network_id.eq.${Number(q) || 0}`
-            )
-            .limit(20);
+    } = await query;
 
-
-    if (error)
+    if (error) {
+        $("list").innerHTML =
+            '<div class="empty">Erreur pendant la recherche.</div>';
         return;
+    }
 
+    for (const p of (data || [])) {
 
-    for (const p of data) {
+        const b = document.createElement("button");
+        b.className = "item";
 
-        const b =
-            document.createElement("button");
+        b.innerHTML = `
+            <div class="conversation-item">
+                <img
+                    class="conversation-avatar"
+                    src="${p.avatar_url || DEFAULT_AVATAR}"
+                    alt=""
+                >
 
-
-        b.className =
-            "item";
-
-
-        b.innerHTML =
-
-            `<div class="item-title">
-                ${escapeText(p.pseudo)}
-            </div>
-
-            <div class="item-sub">
-                #${p.network_id}
+                <div class="conversation-info">
+                    <div class="item-title">
+                        ${escapeText(p.pseudo)}
+                    </div>
+                    <div class="item-sub">
+                        #${p.network_id}
+                    </div>
+                </div>
             </div>`;
 
+        const avatar =
+            b.querySelector(".conversation-avatar");
 
-        b.onclick =
-            () => openDM({
-    id: p.user_id,
-    pseudo: p.pseudo,
-    network_id: p.network_id,
-    avatar_url: p.avatar_url
-});
+        avatar.onerror = () => {
+            avatar.onerror = null;
+            avatar.src = DEFAULT_AVATAR;
+        };
 
+        b.onclick = () => openDM(p);
 
-        $("list")
-            .appendChild(b);
-
+        $("list").appendChild(b);
     }
 
-
-    if (!data.length) {
-
+    if (!data || !data.length) {
         $("list").innerHTML =
             '<div class="empty">Aucun utilisateur trouvé.</div>';
-
     }
-
 }
 
 
 /* =========================
    OUVRIR DISCUSSION PRIVÉE
+
+   IMPORTANT :
+   On charge maintenant directement private_messages.
+   Cela garantit que attachment_url et attachment_type
+   sont récupérés quand on quitte puis rouvre une discussion.
 ========================= */
 
 async function openDM(other) {
 
-    /* =========================
-       SÉCURISER L'UTILISATEUR
-    ========================= */
-
-    const otherId =
-        other.id ||
-        other.user_id ||
-        other.other_user_id ||
-        other.receiver_id;
-
-    if (!otherId) {
-
+    if (!other || !other.id) {
         showError({
-            message:
-                "Impossible d'ouvrir cette discussion : identifiant du destinataire introuvable."
+            message: "Utilisateur introuvable."
         });
-
         return;
-
     }
 
-
-    /* =========================
-       RÉCUPÉRER LE PROFIL COMPLET
-    ========================= */
+    /*
+       On récupère toujours le profil complet.
+       Ainsi une discussion venant de la liste ou
+       d'une recherche utilise exactement le même objet.
+    */
 
     let otherProfile = other;
 
-    if (!otherProfile.id) {
+    if (!otherProfile.pseudo || otherProfile.network_id === undefined) {
 
         const {
             data,
             error
-        } =
-            await supabase
-                .from("profiles")
-                .select(
-                    "id,pseudo,network_id,avatar_url"
-                )
-                .eq(
-                    "id",
-                    otherId
-                )
-                .single();
+        } = await supabase
+            .from("profiles")
+            .select("id,pseudo,network_id,avatar_url")
+            .eq("id", other.id)
+            .single();
 
         if (error) {
-
             showError(error);
-
             return;
-
         }
 
         otherProfile = data;
-
     }
 
+    currentMode = "dm";
+    currentUser = otherProfile;
 
-    currentMode =
-        "dm";
-
-    currentUser =
-        otherProfile;
-
-
-    $("worldTab")
-        .classList
-        .remove("active");
-
-
-    $("dmTab")
-        .classList
-        .add("active");
-
+    $("worldTab").classList.remove("active");
+    $("dmTab").classList.add("active");
 
     $("chatName").textContent =
         `💬 ${otherProfile.pseudo}`;
 
-
     $("chatSub").textContent =
         `${otherProfile.pseudo} #${otherProfile.network_id}`;
 
-
-    setChatAvatar(
-        otherProfile.avatar_url
-    );
-
-
+    setChatAvatar(otherProfile.avatar_url);
     closeSidebar();
 
-
     if (realtimeChannel) {
-
-        await supabase
-            .removeChannel(
-                realtimeChannel
-            );
-
+        await supabase.removeChannel(realtimeChannel);
+        realtimeChannel = null;
     }
 
-
     /* =========================
-       CHARGER L'HISTORIQUE
+       HISTORIQUE MP
     ========================= */
 
     const {
         data,
         error
-    } =
-        await supabase
-            .rpc(
-                "get_private_messages",
-                {
-                    other_user_id:
-                        otherProfile.id
-                }
-            );
-
+    } = await supabase
+        .from("private_messages")
+        .select(
+            "*,sender:profiles!private_messages_sender_id_fkey(pseudo,network_id,avatar_url)"
+        )
+        .or(
+            `and(sender_id.eq.${user.id},receiver_id.eq.${otherProfile.id}),and(sender_id.eq.${otherProfile.id},receiver_id.eq.${user.id})`
+        )
+        .order("created_at", { ascending: true })
+        .limit(500);
 
     if (error) {
-
         showError(error);
-
         return;
-
     }
 
-
-    const formatted =
-        (data || []).map(row => ({
-
-            id:
-                row.id,
-
-            sender_id:
-                row.sender_id,
-
-            receiver_id:
-                row.receiver_id,
-
-            body:
-                row.body,
-
-            created_at:
-                row.created_at,
-
-            sender: {
-
-                pseudo:
-                    row.pseudo,
-
-                network_id:
-                    row.network_id,
-
-                avatar_url:
-                    row.avatar_url
-
-            }
-
-        }));
-
-
-    setMessages(formatted);
-
+    setMessages(data || []);
 
     /* =========================
-       TEMPS RÉEL
+       TEMPS RÉEL DES MP
     ========================= */
 
     realtimeChannel =
-
         supabase
             .channel(
                 "dm-" +
@@ -2050,7 +1818,6 @@ async function openDM(other) {
                     .sort()
                     .join("-")
             )
-
             .on(
                 "postgres_changes",
                 {
@@ -2058,64 +1825,46 @@ async function openDM(other) {
                     schema: "public",
                     table: "private_messages"
                 },
-
                 async payload => {
 
-                    const r =
-                        payload.new;
-
+                    const r = payload.new;
 
                     if (
-
                         (
                             r.sender_id === user.id &&
                             r.receiver_id === otherProfile.id
                         )
-
                         ||
-
                         (
                             r.sender_id === otherProfile.id &&
                             r.receiver_id === user.id
                         )
-
                     ) {
 
                         const {
                             data
-                        } =
-                            await supabase
-                                .from("private_messages")
-                                .select(
-                                    "*,sender:profiles!private_messages_sender_id_fkey(pseudo,network_id,avatar_url)"
-                                )
-                                .eq(
-                                    "id",
-                                    r.id
-                                )
-                                .single();
-
+                        } = await supabase
+                            .from("private_messages")
+                            .select(
+                                "*,sender:profiles!private_messages_sender_id_fkey(pseudo,network_id,avatar_url)"
+                            )
+                            .eq("id", r.id)
+                            .single();
 
                         if (data) {
-
                             addMessage(data);
 
-                            $("messages")
-                                .scrollTop =
-                                $("messages")
-                                    .scrollHeight;
+                            $("messages").scrollTop =
+                                $("messages").scrollHeight;
 
+                            await loadConversations();
                         }
-
                     }
-
                 }
-
             )
-
             .subscribe();
-
 }
+
 
 /* =========================
    ENVOYER MESSAGE
@@ -2124,37 +1873,25 @@ async function openDM(other) {
 async function sendMessage() {
 
     const body =
-        $("messageInput")
-            .value
-            .trim();
+        $("messageInput").value.trim();
 
     const file =
-        $("attachmentInput")
-            .files[0];
-
+        $("attachmentInput").files[0];
 
     if (!body && !file)
         return;
 
-
-    $("sendBtn")
-        .disabled = true;
-
-    $("attachmentBtn")
-        .disabled = true;
-
+    $("sendBtn").disabled = true;
+    $("attachmentBtn").disabled = true;
 
     try {
 
         let attachmentUrl = null;
         let attachmentType = null;
 
-
-        /*
-        ==========================================
-        UPLOAD DE LA PHOTO
-        ==========================================
-        */
+        /* =========================
+           UPLOAD PHOTO
+        ========================= */
 
         if (file) {
 
@@ -2164,13 +1901,11 @@ async function sendMessage() {
                 );
             }
 
-
             if (file.size > 10 * 1024 * 1024) {
                 throw new Error(
                     "La photo est trop lourde. Maximum : 10 Mo."
                 );
             }
-
 
             const extension =
                 file.name.split(".").pop() || "jpg";
@@ -2182,146 +1917,100 @@ async function sendMessage() {
                 "." +
                 extension;
 
-
             const {
                 error: uploadError
-            } =
-                await supabase.storage
-                    .from("attachments")
-                    .upload(
-                        filePath,
-                        file,
-                        {
-                            contentType: file.type,
-                            upsert: false
-                        }
-                    );
-
+            } = await supabase.storage
+                .from("attachments")
+                .upload(
+                    filePath,
+                    file,
+                    {
+                        contentType: file.type,
+                        upsert: false
+                    }
+                );
 
             if (uploadError)
                 throw uploadError;
 
-
             const {
                 data: publicData
-            } =
-                supabase.storage
-                    .from("attachments")
-                    .getPublicUrl(filePath);
-
+            } = supabase.storage
+                .from("attachments")
+                .getPublicUrl(filePath);
 
             attachmentUrl =
                 publicData.publicUrl;
 
             attachmentType =
                 file.type;
-
         }
 
+        /* =========================
+           MONDIAL
+        ========================= */
 
-        /*
-        ==============================
-        MONDIAL
-        ==============================
-        */
-
-        if (
-            currentMode === "world"
-        ) {
+        if (currentMode === "world") {
 
             const {
                 error
-            } =
-                await supabase
-                    .from("world_messages")
-                    .insert({
-                        sender_id:
-                            user.id,
-
-                        body:
-                            body,
-
-                        attachment_url:
-                            attachmentUrl,
-
-                        attachment_type:
-                            attachmentType
-                    });
-
+            } = await supabase
+                .from("world_messages")
+                .insert({
+                    sender_id: user.id,
+                    body: body,
+                    attachment_url: attachmentUrl,
+                    attachment_type: attachmentType
+                });
 
             if (error)
                 throw error;
-
         }
 
-
-        /*
-        ==============================
-        MESSAGE PRIVÉ
-        ==============================
-        */
+        /* =========================
+           MESSAGE PRIVÉ
+        ========================= */
 
         else {
 
+            if (!currentUser?.id) {
+                throw new Error(
+                    "Sélectionne une discussion avant d'envoyer le message."
+                );
+            }
+
             const {
                 error
-            } =
-                await supabase
-                    .from("private_messages")
-                    .insert({
-
-                        sender_id:
-                            user.id,
-
-                        receiver_id:
-                            currentUser.id,
-
-                        body:
-                            body,
-
-                        attachment_url:
-                            attachmentUrl,
-
-                        attachment_type:
-                            attachmentType
-
-                    });
-
+            } = await supabase
+                .from("private_messages")
+                .insert({
+                    sender_id: user.id,
+                    receiver_id: currentUser.id,
+                    body: body,
+                    attachment_url: attachmentUrl,
+                    attachment_type: attachmentType
+                });
 
             if (error)
                 throw error;
-
         }
 
+        $("messageInput").value = "";
+        $("attachmentInput").value = "";
+        $("attachmentName").textContent = "";
 
-        $("messageInput")
-            .value = "";
-
-        if (currentMode === "dm") {
-            loadConversations();
-        }
-
-        $("attachmentInput")
-            .value = "";
-
-        $("attachmentName")
-            .textContent = "";
+        if (currentMode === "dm")
+            await loadConversations();
 
     }
     catch (e) {
-
         showError(e);
-
     }
 
-
-    $("sendBtn")
-        .disabled = false;
-
-    $("attachmentBtn")
-        .disabled = false;
-
+    $("sendBtn").disabled = false;
+    $("attachmentBtn").disabled = false;
 }
+
 
 /* =========================
    AFFICHER ERREUR
@@ -2330,14 +2019,11 @@ async function sendMessage() {
 function showError(e) {
 
     $("messages").innerHTML =
-
         `<div class="empty">
             ${escapeText(
-                e.message ||
-                "Une erreur est survenue."
+                e.message || "Une erreur est survenue."
             )}
         </div>`;
-
 }
 
 
@@ -2346,194 +2032,109 @@ function showError(e) {
 ========================= */
 
 function openSidebar() {
-
-    $("sidebar")
-        .classList
-        .add("open");
-
+    $("sidebar").classList.add("open");
 }
-
 
 function closeSidebar() {
-
-    $("sidebar")
-        .classList
-        .remove("open");
-
+    $("sidebar").classList.remove("open");
 }
 
-
-$("menuBtn")
-    .onclick =
-    openSidebar;
-
-
-$("sidebarClose")
-    .onclick =
-    closeSidebar;
+$("menuBtn").onclick = openSidebar;
+$("sidebarClose").onclick = closeSidebar;
 
 
 /* =========================
    PIÈCES JOINTES
 ========================= */
 
-$("attachmentBtn")
-    .onclick = () => {
+$("attachmentBtn").onclick = () => {
+    $("attachmentInput").click();
+};
 
-        $("attachmentInput")
-            .click();
+$("attachmentInput").addEventListener(
+    "change",
+    () => {
 
-    };
+        const file =
+            $("attachmentInput").files[0];
 
-
-$("attachmentInput")
-    .addEventListener(
-        "change",
-        () => {
-
-            const file =
-                $("attachmentInput").files[0];
-
-            $("attachmentName")
-                .textContent =
-                file
-                    ? "📷 " + file.name
-                    : "";
-
-        }
-    );
+        $("attachmentName").textContent =
+            file ? "📷 " + file.name : "";
+    }
+);
 
 
 /* =========================
    BOUTONS
 ========================= */
 
-$("createBtn")
-    .onclick =
-    createProfile;
+$("createBtn").onclick = createProfile;
+$("sendBtn").onclick = sendMessage;
 
-
-$("sendBtn")
-    .onclick =
-    sendMessage;
-
-
-$("messageInput")
-    .addEventListener(
-        "keydown",
-        e => {
-
-            if (
-                e.key === "Enter" &&
-                !e.shiftKey
-            ) {
-
-                e.preventDefault();
-
-                sendMessage();
-
-            }
-
+$("messageInput").addEventListener(
+    "keydown",
+    e => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
         }
-    );
+    }
+);
 
+$("worldTab").onclick = openWorld;
 
-$("worldTab")
-    .onclick =
-    openWorld;
+$("dmTab").onclick = async () => {
 
+    currentMode = "dm";
 
-$("dmTab")
-    .onclick =
-    () => {
+    $("dmTab").classList.add("active");
+    $("worldTab").classList.remove("active");
 
-        currentMode =
-            "dm";
+    $("chatName").textContent = "💬 Privé";
+    $("chatSub").textContent =
+        "Sélectionne une discussion ou recherche un utilisateur";
 
+    setChatAvatar(null);
 
-        $("dmTab")
-            .classList
-            .add("active");
+    $("messages").innerHTML =
+        '<div class="empty">Sélectionne une discussion ou recherche un utilisateur.</div>';
 
+    await loadConversations();
+};
 
-        $("worldTab")
-            .classList
-            .remove("active");
-
-
-        $("chatName").textContent =
-            "💬 Privé";
-
-
-        $("chatSub").textContent =
-            "Recherche un utilisateur ci-contre";
-
-
-        setChatAvatar(null);
-
-
-        $("messages").innerHTML =
-
-            '<div class="empty">' +
-            'Sélectionne une discussion ou recherche un utilisateur.' +
-            '</div>';
-
-        loadConversations();
-
-    };
-
-
-$("search")
-    .addEventListener(
-        "input",
-        searchUsers
-    );
+$("search").addEventListener(
+    "input",
+    searchUsers
+);
 
 
 /* =========================
    PARAMÈTRES
 ========================= */
 
-const settingsPanel =
-    $("settingsPanel");
-
-const settingsPseudo =
-    $("settingsPseudo");
-
-const settingsAvatar =
-    $("settingsAvatar");
-
-const avatarPreview =
-    $("avatarPreview");
+const settingsPanel = $("settingsPanel");
+const settingsPseudo = $("settingsPseudo");
+const settingsAvatar = $("settingsAvatar");
+const avatarPreview = $("avatarPreview");
 
 
 /* OUVRIR */
 
 $("settingsBtn").onclick = () => {
 
-    settingsPseudo.value =
-        profile.pseudo;
-
-    settingsAvatar.value =
-        profile.avatar_url || "";
+    settingsPseudo.value = profile.pseudo;
+    settingsAvatar.value = profile.avatar_url || "";
 
     updateAvatarPreview();
 
-    settingsPanel
-        .classList
-        .remove("hidden");
-
+    settingsPanel.classList.remove("hidden");
 };
 
 
 /* FERMER */
 
 $("closeSettings").onclick = () => {
-
-    settingsPanel
-        .classList
-        .add("hidden");
-
+    settingsPanel.classList.add("hidden");
 };
 
 
@@ -2541,222 +2142,131 @@ $("closeSettings").onclick = () => {
 
 function updateAvatarPreview() {
 
-    const url =
-        settingsAvatar.value.trim();
-
+    const url = settingsAvatar.value.trim();
 
     if (!url) {
-
-        avatarPreview.style.display =
-            "none";
-
+        avatarPreview.style.display = "none";
         return;
-
     }
 
+    avatarPreview.src = url;
+    avatarPreview.style.display = "block";
 
-    avatarPreview.src =
-        url;
-
-    avatarPreview.style.display =
-        "block";
-
+    avatarPreview.onerror = () => {
+        avatarPreview.onerror = null;
+        avatarPreview.src = DEFAULT_AVATAR;
+    };
 }
 
-
-settingsAvatar
-    .addEventListener(
-        "input",
-        updateAvatarPreview
-    );
+settingsAvatar.addEventListener(
+    "input",
+    updateAvatarPreview
+);
 
 
 /* =========================
    ENREGISTRER PROFIL
 ========================= */
 
-$("saveSettings").onclick =
-    async () => {
+$("saveSettings").onclick = async () => {
 
-        const pseudo =
-            settingsPseudo.value.trim();
+    const pseudo = settingsPseudo.value.trim();
+    const avatar = settingsAvatar.value.trim();
 
-        const avatar =
-            settingsAvatar.value.trim();
+    if (!pseudo) {
+        $("settingsMessage").textContent =
+            "❌ Le pseudo est obligatoire.";
+        return;
+    }
 
+    if (pseudo.length < 2 || pseudo.length > 24) {
+        $("settingsMessage").textContent =
+            "❌ Le pseudo doit faire 2 à 24 caractères.";
+        return;
+    }
 
-        if (!pseudo) {
+    $("saveSettings").disabled = true;
 
-            $("settingsMessage")
-                .textContent =
-                "❌ Le pseudo est obligatoire.";
+    try {
 
-            return;
+        const {
+            error
+        } = await supabase
+            .from("profiles")
+            .update({
+                pseudo: pseudo,
+                avatar_url: avatar || null
+            })
+            .eq("id", user.id);
 
+        if (error)
+            throw error;
+
+        profile.pseudo = pseudo;
+        profile.avatar_url = avatar || null;
+
+        renderMyProfile();
+
+        if (currentMode === "dm" && currentUser) {
+            if (currentUser.id === user.id) {
+                setChatAvatar(profile.avatar_url);
+            }
+            await loadConversations();
         }
 
+        $("settingsMessage").textContent =
+            "✅ Profil enregistré !";
 
-        if (
-            pseudo.length < 2 ||
-            pseudo.length > 24
-        ) {
+        setTimeout(() => {
+            settingsPanel.classList.add("hidden");
+            $("settingsMessage").textContent = "";
+        }, 800);
 
-            $("settingsMessage")
-                .textContent =
-                "❌ Le pseudo doit faire 2 à 24 caractères.";
+    }
+    catch (e) {
 
-            return;
+        $("settingsMessage").textContent =
+            "❌ " + (e.message || "Erreur");
+    }
 
-        }
-
-
-        $("saveSettings")
-            .disabled = true;
-
-
-        try {
-
-            const {
-                error
-            } =
-                await supabase
-                    .from("profiles")
-                    .update({
-
-                        pseudo:
-                            pseudo,
-
-                        avatar_url:
-                            avatar || null
-
-                    })
-                    .eq(
-                        "id",
-                        user.id
-                    );
-
-
-            if (error)
-                throw error;
-
-
-            /*
-            Met à jour le profil local
-            */
-
-            profile.pseudo =
-                pseudo;
-
-            profile.avatar_url =
-                avatar || null;
-
-
-            /*
-            Met à jour l'affichage
-            */
-
-            $("me").innerHTML =
-
-                `<b>${escapeText(profile.pseudo)}</b>
-                <span style="color:#361FDB">
-                #${profile.network_id}
-                </span>`;
-
-
-            $("settingsMessage")
-                .textContent =
-                "✅ Profil enregistré !";
-
-
-            setTimeout(() => {
-
-                settingsPanel
-                    .classList
-                    .add("hidden");
-
-                $("settingsMessage")
-                    .textContent = "";
-
-            }, 800);
-
-
-        }
-        catch (e) {
-
-            $("settingsMessage")
-                .textContent =
-                "❌ " +
-                (
-                    e.message ||
-                    "Erreur"
-                );
-
-        }
-
-
-        $("saveSettings")
-            .disabled = false;
-
-    };
+    $("saveSettings").disabled = false;
+};
 
 
 /* =========================
    MODE SOMBRE
 ========================= */
 
-$("darkModeBtn").onclick =
-    () => {
+$("darkModeBtn").onclick = () => {
 
-        document.body.style.background =
-            "#05050a";
+    document.body.style.background = "#05050a";
+    document.body.style.color = "white";
 
-        document.body.style.color =
-            "white";
-
-        localStorage.setItem(
-            "cn_theme",
-            "dark"
-        );
-
-    };
+    localStorage.setItem("cn_theme", "dark");
+};
 
 
 /* =========================
    MODE CLAIR
 ========================= */
 
-$("lightModeBtn").onclick =
-    () => {
+$("lightModeBtn").onclick = () => {
 
-        document.body.style.background =
-            "#f2f2f7";
+    document.body.style.background = "#f2f2f7";
+    document.body.style.color = "#111";
 
-        document.body.style.color =
-            "#111";
-
-        localStorage.setItem(
-            "cn_theme",
-            "light"
-        );
-
-    };
+    localStorage.setItem("cn_theme", "light");
+};
 
 
 /* =========================
    CHARGER LE THÈME
 ========================= */
 
-if (
-    localStorage.getItem("cn_theme")
-    === "light"
-) {
+if (localStorage.getItem("cn_theme") === "light") {
 
-    document.body.style.background =
-        "#f2f2f7";
-
-    document.body.style.color =
-        "#111";
-
+    document.body.style.background = "#f2f2f7";
+    document.body.style.color = "#111";
 }
 
 
