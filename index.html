@@ -1035,7 +1035,58 @@ button {
 
         </div>
 
+<!-- NOTIFICATIONS -->  
+<h3 style="color:#00f0ff;margin-top:25px;">
+    🔔 Notifications
+</h3>
 
+<div style="display:flex;gap:8px;">
+
+      <button
+        id="enableNotificationsBtn"
+        type="button"
+        style="
+            flex:1;
+            padding:12px;
+            background:#361FDB;
+            color:white;
+            border:1px solid #00f0ff;
+            border-radius:7px;
+            font-weight:bold;
+        "
+    >
+        🔔 Activer
+    </button>
+
+    <button
+        id="disableNotificationsBtn"
+        type="button"
+        style="
+            flex:1;
+            padding:12px;
+            background:#121226;
+            color:white;
+            border:1px solid #361FDB;
+            border-radius:7px;
+            font-weight:bold;
+        "
+    >
+        🔕 Désactiver
+    </button>
+
+</div>
+
+<div
+    id="notificationStatus"
+    style="
+        margin-top:8px;
+        color:#77779a;
+        font-size:12px;
+        text-align:center;
+    "
+>
+    Statut : vérification…
+</div>
         <button
             id="saveSettings"
             style="
