@@ -2494,6 +2494,16 @@ $("disableNotificationsBtn").onclick = async () => {
 
 updateNotificationStatus();
 
+
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/C.N.Message/sw.js")
+        .then(() => {
+            console.log("Service Worker enregistré !");
+        })
+        .catch(error => {
+            console.error("Erreur Service Worker :", error);
+        });
+}
 /* =========================
    LANCEMENT
 ========================= */
