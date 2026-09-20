@@ -641,6 +641,37 @@ button {
         padding: 8px;
     }
 }
+/* =========================
+   COMPATIBILITÉ IPHONE / APP WEB
+========================= */
+
+input,
+button,
+textarea {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+    touch-action: manipulation;
+}
+
+input {
+    -webkit-appearance: none;
+    appearance: none;
+    pointer-events: auto;
+}
+
+input:focus {
+    outline: none;
+}
+
+.loginbox input,
+.composer input,
+.search,
+#settingsPanel input {
+    position: relative;
+    z-index: 200;
+    pointer-events: auto;
+}
 </style>
 </head>
 
@@ -2637,37 +2668,7 @@ supabase.auth.onAuthStateChange((event, session) => {
 ========================= */
 
 init();
-/* =========================
-   COMPATIBILITÉ IPHONE / APP WEB
-========================= */
 
-input,
-button,
-textarea {
-    -webkit-user-select: text;
-    user-select: text;
-    -webkit-touch-callout: default;
-    touch-action: manipulation;
-}
-
-input {
-    -webkit-appearance: none;
-    appearance: none;
-    pointer-events: auto;
-}
-
-input:focus {
-    outline: none;
-}
-
-.loginbox input,
-.composer input,
-.search,
-#settingsPanel input {
-    position: relative;
-    z-index: 200;
-    pointer-events: auto;
-}
 </script>
 
 </body>
