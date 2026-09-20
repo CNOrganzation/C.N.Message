@@ -1212,7 +1212,14 @@ const SUPABASE_ANON_KEY = "sb_publishable_bUgTtZXn7zfY3_y8fdL5zg_u675RwY1";
 
 const supabase = createClient(
     SUPABASE_URL,
-    SUPABASE_ANON_KEY
+    SUPABASE_ANON_KEY,
+    {
+        auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: false
+        }
+    }
 );
 
 
@@ -1252,24 +1259,21 @@ function escapeText(value) {
 
 async function ensureAuth() {
 
-    let {
-        data: { session }
+    const {
+        data: { session },
+        error
     } = await supabase.auth.getSession();
 
+    if (error)
+        throw error;
+
     if (!session) {
-
-        const {
-            data,
-            error
-        } = await supabase.auth.signInAnonymously();
-
-        if (error)
-            throw error;
-
-        session = data.session;
+        user = null;
+        return false;
     }
 
     user = session.user;
+    return true;
 }
 
 
@@ -1335,7 +1339,15 @@ async function init() {
 
     try {
 
-        await ensureAuth();
+        const hasSession = await ensureAuth();
+
+        if (!hasSession) {
+            $("login").classList.remove("hidden");
+            $("app").classList.add("hidden");
+            $("loginError").textContent = "";
+            return;
+        }
+
         await loadProfile();
 
         $("login").classList.add("hidden");
@@ -1347,6 +1359,10 @@ async function init() {
     }
     catch (e) {
 
+        console.error("INIT ERROR:", e);
+
+        $("login").classList.remove("hidden");
+        $("app").classList.add("hidden");
         $("loginError").textContent =
             e.message || "Erreur de connexion.";
     }
@@ -2604,6 +2620,18 @@ if ("serviceWorker" in navigator) {
             console.error("Erreur Service Worker :", error);
         });
 }
+/* =========================
+   SURVEILLANCE AUTH
+========================= */
+
+supabase.auth.onAuthStateChange((event, session) => {
+    console.log(
+        "AUTH EVENT:",
+        event,
+        session?.user?.id || null
+    );
+});
+
 /* =========================
    LANCEMENT
 ========================= */
