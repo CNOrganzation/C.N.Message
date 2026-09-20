@@ -595,7 +595,7 @@ button {
         width: 290px;
         max-width: 85vw;
 
-        z-index: 20;
+        z-index: 150;
 
         border-right: 1px solid #272052;
         border-bottom: 0;
@@ -641,38 +641,6 @@ button {
         padding: 8px;
     }
 }
-/* =========================
-   COMPATIBILITÉ IPHONE / APP WEB
-========================= */
-
-input,
-button,
-textarea {
-    -webkit-user-select: text;
-    user-select: text;
-    -webkit-touch-callout: default;
-    touch-action: manipulation;
-}
-
-input {
-    -webkit-appearance: none;
-    appearance: none;
-    pointer-events: auto;
-}
-
-input:focus {
-    outline: none;
-}
-
-.loginbox input,
-.composer input,
-.search,
-#settingsPanel input {
-    position: relative;
-    z-index: 200;
-    pointer-events: auto;
-}
-
 </style>
 </head>
 
@@ -915,7 +883,7 @@ input:focus {
     style="
         position:fixed;
         inset:0;
-        z-index:100;
+        z-index:1000;
         background:rgba(0,0,0,.75);
         padding:20px;
         overflow-y:auto;
@@ -1148,11 +1116,81 @@ input:focus {
                 font-size:13px;
             "
         ></div>
+        <button
+            id="betterInAppBtn"
+            type="button"
+            style="
+                display:block;
+                width:100%;
+                margin-top:22px;
+                padding:4px;
+                background:transparent;
+                border:0;
+                color:#77779a;
+                font-size:11px;
+                text-align:center;
+                cursor:pointer;
+            "
+        >better in the app</button>
 
     </div>
 
 </div>
 
+
+
+<!-- =========================
+     INSTALLATION DE L'APP
+========================= -->
+
+<div id="appInstallPanel" class="hidden"
+     style="position:fixed;inset:0;z-index:1100;background:#05050a;padding:20px;overflow-y:auto;">
+    <div style="max-width:500px;margin:20px auto;background:#0d0d1a;border:2px solid #361FDB;border-radius:14px;padding:20px;box-shadow:0 0 25px rgba(54,31,219,.4);">
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <h2 style="margin:0;color:#00f0ff;">📱 C.N. Message</h2>
+            <button id="closeAppInstall" type="button"
+                    style="background:#121226;border:1px solid #361FDB;color:white;border-radius:7px;padding:7px 10px;">✕</button>
+        </div>
+
+        <p style="color:#aaa;line-height:1.5;">
+            Installe C.N. Message sur ton écran d'accueil pour l'utiliser comme une app.
+        </p>
+
+        <div style="display:flex;gap:8px;margin:20px 0;">
+            <button id="installIOS" type="button"
+                    style="flex:1;padding:12px;background:#361FDB;color:white;border:1px solid #00f0ff;border-radius:8px;font-weight:bold;">
+                🍎 iOS
+            </button>
+            <button id="installAndroid" type="button"
+                    style="flex:1;padding:12px;background:#121226;color:white;border:1px solid #361FDB;border-radius:8px;font-weight:bold;">
+                🤖 Android
+            </button>
+        </div>
+
+        <div id="installIOSContent" style="display:block;">
+            <h3 style="color:#00f0ff;">🍎 iOS</h3>
+            <ol style="color:#ddd;line-height:1.7;padding-left:22px;">
+                <li>Ouvre C.N. Message dans Safari.</li>
+                <li>Appuie sur <b>Partager</b>.</li>
+                <li>Choisis <b>Sur l'écran d'accueil</b>.</li>
+                <li>Active <b>Ouvrir comme app web</b> si l'option apparaît.</li>
+                <li>Appuie sur <b>Ajouter</b>.</li>
+            </ol>
+        </div>
+
+        <div id="installAndroidContent" style="display:none;">
+            <h3 style="color:#00f0ff;">🤖 Android</h3>
+            <ol style="color:#ddd;line-height:1.7;padding-left:22px;">
+                <li>Ouvre C.N. Message dans Chrome.</li>
+                <li>Appuie sur <b>⋮</b> en haut à droite.</li>
+                <li>Choisis <b>Installer l'application</b> si elle est proposée.</li>
+                <li>Sinon, utilise <b>Installer et créer un raccourci</b> ou <b>Créer un raccourci</b>, selon la version.</li>
+                <li>Valide l'ajout.</li>
+            </ol>
+        </div>
+    </div>
+</div>
 
 <!-- =========================
      JAVASCRIPT
@@ -1381,10 +1419,8 @@ async function createProfile() {
     }
     catch (e) {
 
-        console.error("ERREUR CREATE PROFILE :", e);
-
         $("loginError").textContent =
-            "ERREUR : " + (e.message || JSON.stringify(e));
+            e.message || "Impossible de créer le profil.";
 
         $("createBtn").disabled = false;
     }
@@ -2197,6 +2233,36 @@ $("search").addEventListener(
 );
 
 
+
+/* =========================
+   INSTALLATION DE L'APP
+========================= */
+
+const appInstallPanel = $("appInstallPanel");
+
+$("betterInAppBtn").onclick = () => {
+    settingsPanel.classList.add("hidden");
+    appInstallPanel.classList.remove("hidden");
+};
+
+$("closeAppInstall").onclick = () => {
+    appInstallPanel.classList.add("hidden");
+};
+
+$("installIOS").onclick = () => {
+    $("installIOSContent").style.display = "block";
+    $("installAndroidContent").style.display = "none";
+    $("installIOS").style.background = "#361FDB";
+    $("installAndroid").style.background = "#121226";
+};
+
+$("installAndroid").onclick = () => {
+    $("installIOSContent").style.display = "none";
+    $("installAndroidContent").style.display = "block";
+    $("installIOS").style.background = "#121226";
+    $("installAndroid").style.background = "#361FDB";
+};
+
 /* =========================
    PARAMÈTRES
 ========================= */
@@ -2543,6 +2609,37 @@ if ("serviceWorker" in navigator) {
 ========================= */
 
 init();
+/* =========================
+   COMPATIBILITÉ IPHONE / APP WEB
+========================= */
+
+input,
+button,
+textarea {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+    touch-action: manipulation;
+}
+
+input {
+    -webkit-appearance: none;
+    appearance: none;
+    pointer-events: auto;
+}
+
+input:focus {
+    outline: none;
+}
+
+.loginbox input,
+.composer input,
+.search,
+#settingsPanel input {
+    position: relative;
+    z-index: 200;
+    pointer-events: auto;
+}
 </script>
 
 </body>
