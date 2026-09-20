@@ -580,9 +580,28 @@ button {
 
     .layout {
         display: block;
-
         height: calc(100vh - 64px);
         min-height: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .chat {
+        height: 100%;
+        min-height: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .messages {
+        min-height: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .composer {
+        position: relative;
+        z-index: 2;
     }
 
     .sidebar {
@@ -595,7 +614,7 @@ button {
         width: 290px;
         max-width: 85vw;
 
-        z-index: 150;
+        z-index: 500;
 
         border-right: 1px solid #272052;
         border-bottom: 0;
@@ -604,6 +623,10 @@ button {
         transition: transform .2s ease;
 
         box-shadow: 8px 0 25px rgba(0,0,0,.45);
+
+        background: #0b0b17;
+
+        overflow-y: auto;
     }
 
     .sidebar.open {
@@ -626,15 +649,6 @@ button {
         border-radius: 7px;
 
         text-align: left;
-    }
-
-    .chat {
-        height: 100%;
-        min-height: 0;
-    }
-
-    .messages {
-        min-height: 0;
     }
 
     .item {
