@@ -641,6 +641,38 @@ button {
         padding: 8px;
     }
 }
+/* =========================
+   COMPATIBILITÉ IPHONE / APP WEB
+========================= */
+
+input,
+button,
+textarea {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+    touch-action: manipulation;
+}
+
+input {
+    -webkit-appearance: none;
+    appearance: none;
+    pointer-events: auto;
+}
+
+input:focus {
+    outline: none;
+}
+
+.loginbox input,
+.composer input,
+.search,
+#settingsPanel input {
+    position: relative;
+    z-index: 200;
+    pointer-events: auto;
+}
+
 </style>
 </head>
 
@@ -1349,8 +1381,10 @@ async function createProfile() {
     }
     catch (e) {
 
+        console.error("ERREUR CREATE PROFILE :", e);
+
         $("loginError").textContent =
-            e.message || "Impossible de créer le profil.";
+            "ERREUR : " + (e.message || JSON.stringify(e));
 
         $("createBtn").disabled = false;
     }
@@ -2496,7 +2530,7 @@ updateNotificationStatus();
 
 
 if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/C.N.Message/sw.js")
+    navigator.serviceWorker.register("./sw.js")
         .then(() => {
             console.log("Service Worker enregistré !");
         })
@@ -2509,37 +2543,6 @@ if ("serviceWorker" in navigator) {
 ========================= */
 
 init();
-/* =========================
-   COMPATIBILITÉ IPHONE / APP WEB
-========================= */
-
-input,
-button,
-textarea {
-    -webkit-user-select: text;
-    user-select: text;
-    -webkit-touch-callout: default;
-    touch-action: manipulation;
-}
-
-input {
-    -webkit-appearance: none;
-    appearance: none;
-    pointer-events: auto;
-}
-
-input:focus {
-    outline: none;
-}
-
-.loginbox input,
-.composer input,
-.search,
-#settingsPanel input {
-    position: relative;
-    z-index: 200;
-    pointer-events: auto;
-}
 </script>
 
 </body>
